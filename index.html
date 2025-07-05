@@ -392,6 +392,34 @@
             font-weight: 600;
             margin-top: 0.25rem;
         }
+
+        /* WhatsApp button styles */
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-whatsapp:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(37, 211, 102, 0.4);
+        }
+
+        .btn-whatsapp::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-whatsapp:hover::before {
+            left: 100%;
+        }
     </style>
 </head>
 <body class="min-h-screen relative overflow-x-hidden">
@@ -711,7 +739,7 @@
                 </div>
 
                 <!-- Statistics Cards -->
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
                     <div class="admin-stats-card rounded-2xl p-4 text-center">
                         <div class="text-2xl font-bold text-purple-600 mb-2" id="totalCount">0</div>
                         <div class="text-sm font-semibold text-gray-700">Total</div>
@@ -731,6 +759,10 @@
                     <div class="admin-stats-card rounded-2xl p-4 text-center">
                         <div class="text-2xl font-bold text-red-600 mb-2" id="rejectedCount">0</div>
                         <div class="text-sm font-semibold text-gray-700">Rejected</div>
+                    </div>
+                    <div class="admin-stats-card rounded-2xl p-4 text-center">
+                        <div class="text-2xl font-bold text-red-700 mb-2" id="overdueCount">0</div>
+                        <div class="text-sm font-semibold text-gray-700">Overdue</div>
                     </div>
                 </div>
 
@@ -1065,6 +1097,37 @@
             });
         }
 
+        // Generate WhatsApp message
+        function generateWhatsAppMessage(formData) {
+            const requestAmount = parseInt(formData.requestAmount);
+            const adminFee = calculateAdminFee(requestAmount);
+            const termFee = parseInt(formData.termFee);
+            const totalPayment = requestAmount + adminFee + termFee;
+            const paymentTermDays = parseInt(formData.selectedPaymentTerm);
+            
+            const now = new Date();
+            const dueDate = new Date(now);
+            dueDate.setDate(dueDate.getDate() + paymentTermDays);
+            
+            const message = `🎯 *KONFIRMASI PESANAN DIGITAL FUND*
+
+📱 *Nomor HP:* ${formData.phoneNumber}
+🏪 *Layanan:* ${formData.service}
+💰 *Jumlah Dana:* ${formatCurrency(requestAmount)}
+📋 *Admin Fee:* ${formatCurrency(adminFee)}
+⏰ *Term Fee:* ${formatCurrency(termFee)}
+💳 *Total Pembayaran:* ${formatCurrency(totalPayment)}
+📅 *Jangka Waktu:* ${paymentTermDays} hari
+⏳ *Tanggal Jatuh Tempo:* ${formatDateOnly(dueDate)}
+
+✅ Pesanan telah berhasil disubmit!
+🔄 Status: Menunggu konfirmasi admin
+
+Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
+
+            return encodeURIComponent(message);
+        }
+
         // Enhanced fund request form submission
         async function submitFundRequest(formData) {
             try {
@@ -1099,12 +1162,21 @@
                 await addDoc(collection(db, 'submissions'), docData);
                 showToast('🎉 Fund request submitted successfully!', 'success');
                 
+                // Generate WhatsApp message and redirect
+                const whatsappMessage = generateWhatsAppMessage(formData);
+                const whatsappUrl = `https://wa.me/6289515199789?text=${whatsappMessage}`;
+                
                 // Reset form and go back to dashboard
                 document.getElementById('fundRequestForm').reset();
                 selectedPaymentTerm = null;
                 document.querySelectorAll('.payment-term-option').forEach(opt => opt.classList.remove('selected'));
                 updateFeeDisplay();
                 showView('dashboard');
+                
+                // Open WhatsApp in new tab
+                setTimeout(() => {
+                    window.open(whatsappUrl, '_blank');
+                }, 1000);
                 
             } catch (error) {
                 console.error('Error submitting request:', error);
@@ -1382,12 +1454,20 @@
             const unpaidCount = allSubmissions.filter(s => s.data.status === 'Belum Bayar').length;
             const paidCount = allSubmissions.filter(s => s.data.status === 'Paid').length;
             const rejectedCount = allSubmissions.filter(s => s.data.status === 'Rejected').length;
+            
+            // Calculate overdue count
+            const overdueCount = allSubmissions.filter(submission => {
+                const data = submission.data;
+                const dueDate = data.dueDate ? (data.dueDate.toDate ? data.dueDate.toDate() : new Date(data.dueDate)) : null;
+                return dueDate && isOverdue(dueDate) && (data.status === 'Processing' || data.status === 'Belum Bayar');
+            }).length;
 
             document.getElementById('totalCount').textContent = totalCount;
             document.getElementById('processingCount').textContent = processingCount;
             document.getElementById('unpaidCount').textContent = unpaidCount;
             document.getElementById('paidCount').textContent = paidCount;
             document.getElementById('rejectedCount').textContent = rejectedCount;
+            document.getElementById('overdueCount').textContent = overdueCount;
         }
 
         // Filter submissions based on current filter

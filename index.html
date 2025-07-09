@@ -50,6 +50,10 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
         }
         
+        .gradient-gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        }
+        
         /* Glass morphism effect */
         .glass {
             background: rgba(255, 255, 255, 0.25);
@@ -145,6 +149,34 @@
         .btn-secondary:hover {
             transform: translateY(-3px) scale(1.02);
             box-shadow: 0 20px 40px rgba(79, 172, 254, 0.4);
+        }
+        
+        .btn-gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #8b4513;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-gold::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-gold:hover::before {
+            left: 100%;
+        }
+        
+        .btn-gold:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.4);
         }
         
         /* Enhanced form styles */
@@ -420,6 +452,120 @@
         .btn-whatsapp:hover::before {
             left: 100%;
         }
+
+        /* Payment method card styles */
+        .payment-method-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            border: 2px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .payment-method-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 25px 50px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .payment-method-card.qris {
+            border-left: 4px solid #4f46e5;
+        }
+
+        .payment-method-card.dana {
+            border-left: 4px solid #0081cc;
+        }
+
+        .payment-method-card.seabank {
+            border-left: 4px solid #00d4aa;
+        }
+
+        .payment-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .payment-logo.qris {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        }
+
+        .payment-logo.dana {
+            background: linear-gradient(135deg, #0081cc, #06b6d4);
+        }
+
+        .payment-logo.seabank {
+            background: linear-gradient(135deg, #00d4aa, #10b981);
+        }
+
+        /* Modal styles for payment details */
+        .payment-modal {
+            backdrop-filter: blur(12px);
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .payment-modal-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .qr-code-display {
+            max-width: 300px;
+            max-height: 300px;
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .account-info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .account-detail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+        }
+
+        .account-detail:last-child {
+            margin-bottom: 0;
+        }
+
+        .copy-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .copy-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .copy-button:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body class="min-h-screen relative overflow-x-hidden">
@@ -488,6 +634,14 @@
                         Check Tagihan
                     </div>
                 </button>
+                <button id="adminAccountsBtn" class="btn-gold w-full font-bold py-5 px-8 rounded-2xl text-lg shadow-xl">
+                    <div class="flex items-center justify-center">
+                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Rekening Admin
+                    </div>
+                </button>
             </div>
             
             <div class="text-center">
@@ -497,6 +651,81 @@
                     </svg>
                     Admin Access
                 </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Accounts View -->
+    <div id="adminAccountsView" class="view-container hidden relative z-10 min-h-screen p-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="card rounded-3xl shadow-2xl p-6 md:p-10">
+                <div class="flex items-center mb-8">
+                    <button id="backFromAccountsBtn" class="mr-6 p-3 hover:bg-yellow-100 rounded-xl transition-all duration-300 hover:scale-110">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <div>
+                        <h2 class="font-poppins text-3xl md:text-4xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+                            Rekening Admin
+                        </h2>
+                        <p class="text-gray-500 mt-2">Pilih metode pembayaran yang tersedia</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- QRIS Card -->
+                    <div class="payment-method-card qris rounded-2xl p-6 text-center" data-payment="qris">
+                        <div class="payment-logo qris mx-auto">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 12h-4.01M12 4H8a4 4 0 00-4 4v4a4 4 0 004 4h4m0-12h4a4 4 0 014 4v4a4 4 0 01-4 4h-4m0-12v8m0 0V8a4 4 0 00-4-4H4a4 4 0 00-4 4v8a4 4 0 004 4h4m0 0V8"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">QRIS</h3>
+                        <p class="text-gray-600 text-sm">Scan QR Code untuk pembayaran</p>
+                        <div class="mt-4 text-xs text-gray-500">
+                            <span class="inline-block px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
+                                Quick Response
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Dana Card -->
+                    <div class="payment-method-card dana rounded-2xl p-6 text-center" data-payment="dana">
+                        <div class="payment-logo dana mx-auto">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Dana</h3>
+                        <p class="text-gray-600 text-sm">Transfer via aplikasi Dana</p>
+                        <div class="mt-4 text-xs text-gray-500">
+                            <span class="inline-block px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                                E-Wallet
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Seabank Card -->
+                    <div class="payment-method-card seabank rounded-2xl p-6 text-center" data-payment="seabank">
+                        <div class="payment-logo seabank mx-auto">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Seabank</h3>
+                        <p class="text-gray-600 text-sm">Transfer via rekening bank</p>
+                        <div class="mt-4 text-xs text-gray-500">
+                            <span class="inline-block px-2 py-1 bg-green-100 text-green-700 rounded-full">
+                                Bank Transfer
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center text-gray-500 text-sm">
+                    <p>Klik salah satu metode pembayaran untuk melihat detail</p>
+                </div>
             </div>
         </div>
     </div>
@@ -844,6 +1073,168 @@
         </div>
     </div>
 
+    <!-- Payment Detail Modals -->
+    <!-- QRIS Modal -->
+    <div id="qrisModal" class="fixed inset-0 payment-modal hidden items-center justify-center z-50">
+        <div class="payment-modal-content rounded-3xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <div class="payment-logo qris mx-auto mb-4">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 12h-4.01M12 4H8a4 4 0 00-4 4v4a4 4 0 004 4h4m0-12h4a4 4 0 014 4v4a4 4 0 01-4 4h-4m0-12v8m0 0V8a4 4 0 00-4-4H4a4 4 0 00-4 4v8a4 4 0 004 4h4m0 0V8"></path>
+                    </svg>
+                </div>
+                <h3 class="font-poppins text-2xl font-bold text-gray-800 mb-2">QRIS Payment</h3>
+                <p class="text-gray-500">Scan QR Code untuk pembayaran</p>
+            </div>
+            
+            <div class="text-center mb-6">
+                <div class="bg-white p-4 rounded-2xl shadow-lg inline-block">
+                    <img src="Qris.png" 
+                         alt="QRIS Code" 
+                         class="qr-code-display mx-auto"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="hidden text-gray-500 p-8 border-2 border-dashed border-gray-300 rounded-lg">
+                        <svg class="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <p class="text-sm">QR Code akan muncul di sini</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 mb-6">
+                <div class="flex items-center text-blue-700">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-sm font-medium">Scan QR Code dengan aplikasi pembayaran digital Anda</span>
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button id="closeQrisModal" class="flex-1 gradient-dark text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 hover:scale-105">
+                    Tutup
+                </button>
+                <button onclick="window.open('https://wa.me/6289515199789?text=Saya%20sudah%20transfer%20via%20QRIS', '_blank')" 
+                        class="flex-1 btn-whatsapp text-white font-bold py-4 px-6 rounded-xl">
+                    Konfirmasi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dana Modal -->
+    <div id="danaModal" class="fixed inset-0 payment-modal hidden items-center justify-center z-50">
+        <div class="payment-modal-content rounded-3xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <div class="payment-logo dana mx-auto mb-4">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="font-poppins text-2xl font-bold text-gray-800 mb-2">Dana Payment</h3>
+                <p class="text-gray-500">Transfer via aplikasi Dana</p>
+            </div>
+            
+            <div class="account-info">
+                <div class="account-detail">
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Nama</span>
+                        <div class="text-lg font-bold text-gray-800">IMAM MULMUTHAQIM</div>
+                    </div>
+                    <button class="copy-button" onclick="copyToClipboard('IMAM MULMUTHAQIM')">
+                        Copy
+                    </button>
+                </div>
+                
+                <div class="account-detail">
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Nomor Telepon</span>
+                        <div class="text-lg font-bold text-gray-800">089515199789</div>
+                    </div>
+                    <button class="copy-button" onclick="copyToClipboard('089515199789')">
+                        Copy
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 mb-6">
+                <div class="flex items-center text-blue-700">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-sm font-medium">Transfer ke nomor Dana di atas</span>
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button id="closeDanaModal" class="flex-1 gradient-dark text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 hover:scale-105">
+                    Tutup
+                </button>
+                <button onclick="window.open('https://wa.me/6289515199789?text=Saya%20sudah%20transfer%20via%20Dana', '_blank')" 
+                        class="flex-1 btn-whatsapp text-white font-bold py-4 px-6 rounded-xl">
+                    Konfirmasi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seabank Modal -->
+    <div id="seabankModal" class="fixed inset-0 payment-modal hidden items-center justify-center z-50">
+        <div class="payment-modal-content rounded-3xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <div class="payment-logo seabank mx-auto mb-4">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                </div>
+                <h3 class="font-poppins text-2xl font-bold text-gray-800 mb-2">Seabank Payment</h3>
+                <p class="text-gray-500">Transfer via rekening bank</p>
+            </div>
+            
+            <div class="account-info">
+                <div class="account-detail">
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Nama Rekening</span>
+                        <div class="text-lg font-bold text-gray-800">IMAM MULMUTHAQIM</div>
+                    </div>
+                    <button class="copy-button" onclick="copyToClipboard('IMAM MULMUTHAQIM')">
+                        Copy
+                    </button>
+                </div>
+                
+                <div class="account-detail">
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Nomor Rekening</span>
+                        <div class="text-lg font-bold text-gray-800">901234567890</div>
+                    </div>
+                    <button class="copy-button" onclick="copyToClipboard('901234567890')">
+                        Copy
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-green-50 p-4 rounded-xl border border-green-200 mb-6">
+                <div class="flex items-center text-green-700">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-sm font-medium">Transfer ke rekening Seabank di atas</span>
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button id="closeSeabankModal" class="flex-1 gradient-dark text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 hover:scale-105">
+                    Tutup
+                </button>
+                <button onclick="window.open('https://wa.me/6289515199789?text=Saya%20sudah%20transfer%20via%20Seabank', '_blank')" 
+                        class="flex-1 btn-whatsapp text-white font-bold py-4 px-6 rounded-xl">
+                    Konfirmasi
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         // Firebase configuration and initialization
         const firebaseConfig = {
@@ -889,6 +1280,15 @@
             15: 6000,
             20: 10000,
             30: 12000
+        };
+
+        // Copy to clipboard function
+        window.copyToClipboard = function(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 Copied to clipboard!', 'success');
+            }).catch(() => {
+                showToast('❌ Failed to copy', 'error');
+            });
         };
 
         // Utility functions
@@ -1022,6 +1422,24 @@
                 targetView.classList.remove('hidden');
                 targetView.classList.add('fade-in');
                 currentView = viewName;
+            }
+        }
+
+        // Show modal function
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        // Hide modal function
+        function hideModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
             }
         }
 
@@ -1615,7 +2033,9 @@ Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
             // Navigation buttons
             document.getElementById('requestFundBtn').addEventListener('click', () => showView('fundRequest'));
             document.getElementById('checkBillBtn').addEventListener('click', () => showView('billCheck'));
+            document.getElementById('adminAccountsBtn').addEventListener('click', () => showView('adminAccounts'));
             document.getElementById('backFromRequestBtn').addEventListener('click', () => showView('dashboard'));
+            document.getElementById('backFromAccountsBtn').addEventListener('click', () => showView('dashboard'));
             document.getElementById('backFromBillBtn').addEventListener('click', () => {
                 // Clear search results when going back
                 document.getElementById('billSearchResults').innerHTML = '';
@@ -1629,6 +2049,38 @@ Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
                     adminUnsubscribe = null;
                 }
                 showView('dashboard');
+            });
+            
+            // Payment method cards
+            document.querySelectorAll('.payment-method-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const paymentType = card.dataset.payment;
+                    switch(paymentType) {
+                        case 'qris':
+                            showModal('qrisModal');
+                            break;
+                        case 'dana':
+                            showModal('danaModal');
+                            break;
+                        case 'seabank':
+                            showModal('seabankModal');
+                            break;
+                    }
+                });
+            });
+
+            // Modal close buttons
+            document.getElementById('closeQrisModal').addEventListener('click', () => hideModal('qrisModal'));
+            document.getElementById('closeDanaModal').addEventListener('click', () => hideModal('danaModal'));
+            document.getElementById('closeSeabankModal').addEventListener('click', () => hideModal('seabankModal'));
+
+            // Close modals when clicking outside
+            ['qrisModal', 'danaModal', 'seabankModal'].forEach(modalId => {
+                document.getElementById(modalId).addEventListener('click', (e) => {
+                    if (e.target.id === modalId) {
+                        hideModal(modalId);
+                    }
+                });
             });
             
             // Admin access modal

@@ -54,6 +54,10 @@
             background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
         }
         
+        .gradient-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        }
+        
         /* Glass morphism effect */
         .glass {
             background: rgba(255, 255, 255, 0.25);
@@ -141,6 +145,13 @@
             box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
         }
         
+        .btn-primary:disabled {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
         .btn-secondary {
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -179,6 +190,17 @@
             box-shadow: 0 20px 40px rgba(255, 215, 0, 0.4);
         }
         
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 107, 107, 0.4);
+        }
+        
         /* Enhanced form styles */
         .form-input {
             transition: all 0.3s ease;
@@ -191,6 +213,11 @@
             box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
             background: rgba(255, 255, 255, 1);
             transform: translateY(-2px);
+        }
+        
+        .form-input.error {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
         }
         
         /* Toast notification styles */
@@ -290,6 +317,12 @@
         .status-overdue {
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
             color: #dc2626;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-blacklisted {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
             animation: pulse 2s infinite;
         }
         
@@ -566,6 +599,65 @@
         .copy-button:active {
             transform: scale(0.95);
         }
+
+        /* Blacklist warning styles */
+        .blacklist-warning {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #ef4444;
+            border-radius: 15px;
+            padding: 1rem;
+            margin: 1rem 0;
+            animation: pulse 2s infinite;
+        }
+
+        .blacklist-warning .icon {
+            color: #dc2626;
+        }
+
+        /* Countdown timer styles */
+        .countdown-timer {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #dc2626;
+            background: rgba(220, 38, 38, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+
+        /* Admin section tabs */
+        .admin-section-tab {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin: 0.25rem;
+        }
+
+        .admin-section-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-section-tab.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Verified contact indicator */
+        .verified-contact {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-left: 0.5rem;
+        }
     </style>
 </head>
 <body class="min-h-screen relative overflow-x-hidden">
@@ -613,6 +705,19 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <span class="text-sm font-semibold text-gray-700">100% Secure</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Blacklist Warning (Hidden by default) -->
+            <div id="blacklistWarning" class="blacklist-warning hidden mb-6">
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 icon mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    <div class="text-left">
+                        <div class="font-bold text-red-800">Nomor Telepon Diblokir</div>
+                        <div id="blacklistMessage" class="text-sm text-red-700"></div>
                     </div>
                 </div>
             </div>
@@ -760,6 +865,7 @@
                             <input type="tel" id="phoneNumber" name="phoneNumber" required 
                                    class="form-input w-full px-6 py-4 rounded-xl focus:outline-none text-lg"
                                    placeholder="08xxxxxxxxxx">
+                            <div id="phoneValidationMessage" class="mt-2 text-sm hidden"></div>
                         </div>
                         
                         <div>
@@ -886,7 +992,7 @@
                         <div id="dueDateDisplay" class="text-center text-sm text-gray-600 mt-4 p-3 bg-white rounded-lg font-medium"></div>
                     </div>
                     
-                    <button type="submit" class="btn-primary w-full text-white font-bold py-5 px-8 rounded-2xl text-lg shadow-xl">
+                    <button type="submit" id="submitRequestBtn" class="btn-primary w-full text-white font-bold py-5 px-8 rounded-2xl text-lg shadow-xl">
                         <div class="flex items-center justify-center">
                             <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
@@ -957,7 +1063,7 @@
                         <h2 class="font-poppins text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                             Admin Panel
                         </h2>
-                        <p class="text-gray-500 mt-2">Manage all fund requests</p>
+                        <p class="text-gray-500 mt-2">Manage all fund requests, blacklist, and contacts</p>
                     </div>
                     <button id="backFromAdminBtn" class="gradient-dark text-white font-bold px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg">
                         <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -967,76 +1073,292 @@
                     </button>
                 </div>
 
-                <!-- Statistics Cards -->
-                <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
-                    <div class="admin-stats-card rounded-2xl p-4 text-center">
-                        <div class="text-2xl font-bold text-purple-600 mb-2" id="totalCount">0</div>
-                        <div class="text-sm font-semibold text-gray-700">Total</div>
+                <!-- Admin Section Tabs -->
+                <div class="flex flex-wrap gap-2 mb-8">
+                    <button class="admin-section-tab active" data-section="submissions">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                            Fund Requests
+                        </div>
+                    </button>
+                    <button class="admin-section-tab" data-section="blacklist">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
+                            </svg>
+                            Blacklist Management
+                        </div>
+                    </button>
+                    <button class="admin-section-tab" data-section="contacts">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            Contact Management
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Submissions Section -->
+                <div id="submissionsSection" class="admin-section">
+                    <!-- Statistics Cards -->
+                    <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+                        <div class="admin-stats-card rounded-2xl p-4 text-center">
+                            <div class="text-2xl font-bold text-purple-600 mb-2" id="totalCount">0</div>
+                            <div class="text-sm font-semibold text-gray-700">Total</div>
+                        </div>
+                        <div class="admin-stats-card rounded-2xl p-4 text-center">
+                            <div class="text-2xl font-bold text-orange-600 mb-2" id="processingCount">0</div>
+                            <div class="text-sm font-semibold text-gray-700">Processing</div>
+                        </div>
+                        <div class="admin-stats-card rounded-2xl p-4 text-center">
+                            <div class="text-2xl font-bold text-yellow-600 mb-2" id="unpaidCount">0</div>
+                            <div class="text-sm font-semibold text-gray-700">Belum Bayar</div>
+                        </div>
+                        <div class="admin-stats-card rounded-2xl p-4 text-center">
+                            <div class="text-2xl font-bold text-green-600 mb-2" id="paidCount">0</div>
+                            <div class="text-sm font-semibold text-gray-700">Paid</div>
+                        </div>
+                        <div class="admin-stats-card rounded-2xl p-4 text-center">
+                            <div class="text-2xl font-bold text-red-600 mb-2" id="rejectedCount">0</div>
+                            <div class="text-sm font-semibold text-gray-700">Rejected</div>
+                        </div>
+                        <div class="admin-stats-card rounded-2xl p-4 text-center">
+                            <div class="text-2xl font-bold text-red-700 mb-2" id="overdueCount">0</div>
+                            <div class="text-sm font-semibold text-gray-700">Overdue</div>
+                        </div>
                     </div>
-                    <div class="admin-stats-card rounded-2xl p-4 text-center">
-                        <div class="text-2xl font-bold text-orange-600 mb-2" id="processingCount">0</div>
-                        <div class="text-sm font-semibold text-gray-700">Processing</div>
+
+                    <!-- Filter Tabs -->
+                    <div class="flex flex-wrap gap-3 mb-6">
+                        <button class="admin-filter-tab active px-6 py-3 rounded-xl font-semibold text-sm bg-white" data-filter="all">
+                            📊 All Records
+                        </button>
+                        <button class="admin-filter-tab px-6 py-3 rounded-xl font-semibold text-sm bg-white" data-filter="Processing">
+                            ⏳ Processing
+                        </button>
+                        <button class="admin-filter-tab px-6 py-3 rounded-xl font-semibold text-sm bg-white" data-filter="Belum Bayar">
+                            💰 Belum Bayar
+                        </button>
+                        <button class="admin-filter-tab px-6 py-3 rounded-xl font-semibold text-sm bg-white" data-filter="Paid">
+                            ✅ Paid
+                        </button>
+                        <button class="admin-filter-tab px-6 py-3 rounded-xl font-semibold text-sm bg-white" data-filter="Rejected">
+                            ❌ Rejected
+                        </button>
+                        <button class="admin-filter-tab px-6 py-3 rounded-xl font-semibold text-sm bg-white" data-filter="overdue">
+                            ⚠️ Overdue
+                        </button>
                     </div>
-                    <div class="admin-stats-card rounded-2xl p-4 text-center">
-                        <div class="text-2xl font-bold text-yellow-600 mb-2" id="unpaidCount">0</div>
-                        <div class="text-sm font-semibold text-gray-700">Belum Bayar</div>
-                    </div>
-                    <div class="admin-stats-card rounded-2xl p-4 text-center">
-                        <div class="text-2xl font-bold text-green-600 mb-2" id="paidCount">0</div>
-                        <div class="text-sm font-semibold text-gray-700">Paid</div>
-                    </div>
-                    <div class="admin-stats-card rounded-2xl p-4 text-center">
-                        <div class="text-2xl font-bold text-red-600 mb-2" id="rejectedCount">0</div>
-                        <div class="text-sm font-semibold text-gray-700">Rejected</div>
-                    </div>
-                    <div class="admin-stats-card rounded-2xl p-4 text-center">
-                        <div class="text-2xl font-bold text-red-700 mb-2" id="overdueCount">0</div>
-                        <div class="text-sm font-semibold text-gray-700">Overdue</div>
+                    
+                    <div class="overflow-x-auto custom-scrollbar rounded-2xl">
+                        <table class="w-full table-auto">
+                            <thead class="table-header">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Phone Number</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Service</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Request Amount</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Admin Fee</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Term Fee</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Total Payment</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Submission Date</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Due Date</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Payment Date</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTableBody" class="divide-y divide-gray-200">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <!-- Filter Tabs -->
-                <div class="flex flex-wrap gap-3 mb-6">
-                    <button class="admin-filter-tab active px-6 py-3 rounded-xl font-semibold text-sm bg-white" data-filter="all">
-                        📊 All Records
-                    </button>
-                    <button class="admin-filter-tab px-6 py-3 rounded-xl font-semibold text-sm bg-white" data-filter="Processing">
-                        ⏳ Processing
-                    </button>
-                    <button class="admin-filter-tab px-6 py-3 rounded-xl font-semibold text-sm bg-white" data-filter="Belum Bayar">
-                        💰 Belum Bayar
-                    </button>
-                    <button class="admin-filter-tab px-6 py-3 rounded-xl font-semibold text-sm bg-white" data-filter="Paid">
-                        ✅ Paid
-                    </button>
-                    <button class="admin-filter-tab px-6 py-3 rounded-xl font-semibold text-sm bg-white" data-filter="Rejected">
-                        ❌ Rejected
-                    </button>
-                    <button class="admin-filter-tab px-6 py-3 rounded-xl font-semibold text-sm bg-white" data-filter="overdue">
-                        ⚠️ Overdue
-                    </button>
+                <!-- Blacklist Section -->
+                <div id="blacklistSection" class="admin-section hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Add Blacklist Form -->
+                        <div class="card rounded-2xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <svg class="w-6 h-6 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
+                                </svg>
+                                Add to Blacklist
+                            </h3>
+                            <form id="blacklistForm" class="space-y-4">
+                                <div>
+                                    <label for="blacklistPhone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+                                    <input type="tel" id="blacklistPhone" name="blacklistPhone" required 
+                                           class="form-input w-full px-4 py-3 rounded-xl focus:outline-none"
+                                           placeholder="08xxxxxxxxxx">
+                                </div>
+                                <div>
+                                    <label for="blacklistDuration" class="block text-sm font-semibold text-gray-700 mb-2">Blacklist Duration</label>
+                                    <select id="blacklistDuration" name="blacklistDuration" required 
+                                            class="form-input w-full px-4 py-3 rounded-xl focus:outline-none">
+                                        <option value="">Select duration...</option>
+                                        <option value="7">7 Days</option>
+                                        <option value="14">14 Days</option>
+                                        <option value="30">30 Days</option>
+                                        <option value="60">60 Days</option>
+                                        <option value="90">90 Days</option>
+                                        <option value="365">1 Year</option>
+                                        <option value="permanent">Permanent</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="blacklistReason" class="block text-sm font-semibold text-gray-700 mb-2">Reason (Optional)</label>
+                                    <textarea id="blacklistReason" name="blacklistReason" rows="3"
+                                              class="form-input w-full px-4 py-3 rounded-xl focus:outline-none resize-none"
+                                              placeholder="Enter reason for blacklisting..."></textarea>
+                                </div>
+                                <button type="submit" class="btn-danger w-full text-white font-bold py-3 px-6 rounded-xl">
+                                    <div class="flex items-center justify-center">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                        </svg>
+                                        Add to Blacklist
+                                    </div>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Blacklist Statistics -->
+                        <div class="card rounded-2xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                Blacklist Statistics
+                            </h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="admin-stats-card rounded-xl p-4 text-center">
+                                    <div class="text-2xl font-bold text-red-600 mb-2" id="totalBlacklistCount">0</div>
+                                    <div class="text-sm font-semibold text-gray-700">Total Blacklisted</div>
+                                </div>
+                                <div class="admin-stats-card rounded-xl p-4 text-center">
+                                    <div class="text-2xl font-bold text-orange-600 mb-2" id="activeBlacklistCount">0</div>
+                                    <div class="text-sm font-semibold text-gray-700">Active</div>
+                                </div>
+                                <div class="admin-stats-card rounded-xl p-4 text-center">
+                                    <div class="text-2xl font-bold text-green-600 mb-2" id="expiredBlacklistCount">0</div>
+                                    <div class="text-sm font-semibold text-gray-700">Expired</div>
+                                </div>
+                                <div class="admin-stats-card rounded-xl p-4 text-center">
+                                    <div class="text-2xl font-bold text-purple-600 mb-2" id="permanentBlacklistCount">0</div>
+                                    <div class="text-sm font-semibold text-gray-700">Permanent</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Blacklist Table -->
+                    <div class="mt-8">
+                        <div class="overflow-x-auto custom-scrollbar rounded-2xl">
+                            <table class="w-full table-auto">
+                                <thead class="table-header">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Phone Number</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Start Date</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">End Date</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Time Remaining</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Reason</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="blacklistTableBody" class="divide-y divide-gray-200">
+                                    <!-- Data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="overflow-x-auto custom-scrollbar rounded-2xl">
-                    <table class="w-full table-auto">
-                        <thead class="table-header">
-                            <tr>
-                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Phone Number</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Service</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Request Amount</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Admin Fee</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Term Fee</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Total Payment</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Submission Date</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Due Date</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Payment Date</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminTableBody" class="divide-y divide-gray-200">
-                            <!-- Data will be populated here -->
-                        </tbody>
-                    </table>
+
+                <!-- Contacts Section -->
+                <div id="contactsSection" class="admin-section hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Add Contact Form -->
+                        <div class="card rounded-2xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                                </svg>
+                                Add Verified Contact
+                            </h3>
+                            <form id="contactForm" class="space-y-4">
+                                <div>
+                                    <label for="contactName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                                    <input type="text" id="contactName" name="contactName" required 
+                                           class="form-input w-full px-4 py-3 rounded-xl focus:outline-none"
+                                           placeholder="Enter full name">
+                                </div>
+                                <div>
+                                    <label for="contactPhone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+                                    <input type="tel" id="contactPhone" name="contactPhone" required 
+                                           class="form-input w-full px-4 py-3 rounded-xl focus:outline-none"
+                                           placeholder="08xxxxxxxxxx">
+                                </div>
+                                <div>
+                                    <label for="contactNotes" class="block text-sm font-semibold text-gray-700 mb-2">Notes (Optional)</label>
+                                    <textarea id="contactNotes" name="contactNotes" rows="3"
+                                              class="form-input w-full px-4 py-3 rounded-xl focus:outline-none resize-none"
+                                              placeholder="Additional notes about this contact..."></textarea>
+                                </div>
+                                <button type="submit" class="btn-primary w-full text-white font-bold py-3 px-6 rounded-xl">
+                                    <div class="flex items-center justify-center">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                        </svg>
+                                        Add Contact
+                                    </div>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Contact Statistics -->
+                        <div class="card rounded-2xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                Contact Statistics
+                            </h3>
+                            <div class="grid grid-cols-1 gap-4">
+                                <div class="admin-stats-card rounded-xl p-4 text-center">
+                                    <div class="text-3xl font-bold text-green-600 mb-2" id="totalContactsCount">0</div>
+                                    <div class="text-sm font-semibold text-gray-700">Total Verified Contacts</div>
+                                </div>
+                                <div class="admin-stats-card rounded-xl p-4 text-center">
+                                    <div class="text-3xl font-bold text-blue-600 mb-2" id="recentContactsCount">0</div>
+                                    <div class="text-sm font-semibold text-gray-700">Added This Month</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contacts Table -->
+                    <div class="mt-8">
+                        <div class="overflow-x-auto custom-scrollbar rounded-2xl">
+                            <table class="w-full table-auto">
+                                <thead class="table-header">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Phone Number</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Added Date</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Notes</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contactsTableBody" class="divide-y divide-gray-200">
+                                    <!-- Data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1257,7 +1579,8 @@
             updateDoc, 
             doc, 
             serverTimestamp,
-            orderBy 
+            orderBy,
+            deleteDoc 
         } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // Initialize Firebase
@@ -1266,10 +1589,15 @@
 
         // Global variables
         let currentView = 'dashboard';
+        let currentAdminSection = 'submissions';
         let adminUnsubscribe = null;
+        let blacklistUnsubscribe = null;
+        let contactsUnsubscribe = null;
         let selectedPaymentTerm = null;
         let currentFilter = 'all';
         let allSubmissions = [];
+        let allBlacklist = [];
+        let allContacts = [];
 
         // Payment term fees configuration
         const paymentTerms = {
@@ -1367,6 +1695,159 @@
             return normalized;
         }
 
+        // Blacklist functions
+        async function checkBlacklist(phoneNumber) {
+            const normalizedPhone = normalizePhoneNumber(phoneNumber);
+            
+            try {
+                const q = query(
+                    collection(db, 'blacklist'), 
+                    where('phoneNumber', '==', normalizedPhone)
+                );
+                const querySnapshot = await getDocs(q);
+                
+                for (const doc of querySnapshot.docs) {
+                    const data = doc.data();
+                    const now = new Date();
+                    
+                    // Check if blacklist is permanent
+                    if (data.isPermanent) {
+                        return {
+                            isBlacklisted: true,
+                            reason: data.reason || 'Permanently blacklisted',
+                            endDate: null,
+                            isPermanent: true
+                        };
+                    }
+                    
+                    // Check if blacklist is still active
+                    const endDate = data.endDate.toDate();
+                    if (now < endDate) {
+                        return {
+                            isBlacklisted: true,
+                            reason: data.reason || 'Temporarily blacklisted',
+                            endDate: endDate,
+                            isPermanent: false
+                        };
+                    } else {
+                        // Blacklist expired, remove it
+                        await deleteDoc(doc.ref);
+                    }
+                }
+                
+                return { isBlacklisted: false };
+            } catch (error) {
+                console.error('Error checking blacklist:', error);
+                return { isBlacklisted: false };
+            }
+        }
+
+        async function addToBlacklist(phoneNumber, duration, reason) {
+            const normalizedPhone = normalizePhoneNumber(phoneNumber);
+            const now = new Date();
+            
+            try {
+                const blacklistData = {
+                    phoneNumber: normalizedPhone,
+                    originalPhoneNumber: phoneNumber,
+                    startDate: serverTimestamp(),
+                    reason: reason || '',
+                    isPermanent: duration === 'permanent'
+                };
+                
+                if (duration !== 'permanent') {
+                    const endDate = new Date(now);
+                    endDate.setDate(endDate.getDate() + parseInt(duration));
+                    blacklistData.endDate = endDate;
+                    blacklistData.durationDays = parseInt(duration);
+                }
+                
+                await addDoc(collection(db, 'blacklist'), blacklistData);
+                showToast('🚫 Phone number added to blacklist successfully!', 'success');
+                return true;
+            } catch (error) {
+                console.error('Error adding to blacklist:', error);
+                showToast('❌ Error adding to blacklist. Please try again.', 'error');
+                return false;
+            }
+        }
+
+        async function removeFromBlacklist(docId) {
+            try {
+                await deleteDoc(doc(db, 'blacklist', docId));
+                showToast('✅ Phone number removed from blacklist!', 'success');
+                return true;
+            } catch (error) {
+                console.error('Error removing from blacklist:', error);
+                showToast('❌ Error removing from blacklist. Please try again.', 'error');
+                return false;
+            }
+        }
+
+        // Contact functions
+        async function getContactByPhone(phoneNumber) {
+            const normalizedPhone = normalizePhoneNumber(phoneNumber);
+            
+            try {
+                const q = query(
+                    collection(db, 'contacts'), 
+                    where('phoneNumber', '==', normalizedPhone)
+                );
+                const querySnapshot = await getDocs(q);
+                
+                if (!querySnapshot.empty) {
+                    const doc = querySnapshot.docs[0];
+                    return doc.data();
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('Error getting contact:', error);
+                return null;
+            }
+        }
+
+        async function addContact(name, phoneNumber, notes) {
+            const normalizedPhone = normalizePhoneNumber(phoneNumber);
+            
+            try {
+                // Check if contact already exists
+                const existingContact = await getContactByPhone(phoneNumber);
+                if (existingContact) {
+                    showToast('⚠️ Contact with this phone number already exists!', 'error');
+                    return false;
+                }
+                
+                const contactData = {
+                    name: name.trim(),
+                    phoneNumber: normalizedPhone,
+                    originalPhoneNumber: phoneNumber,
+                    notes: notes || '',
+                    addedDate: serverTimestamp()
+                };
+                
+                await addDoc(collection(db, 'contacts'), contactData);
+                showToast('✅ Contact added successfully!', 'success');
+                return true;
+            } catch (error) {
+                console.error('Error adding contact:', error);
+                showToast('❌ Error adding contact. Please try again.', 'error');
+                return false;
+            }
+        }
+
+        async function removeContact(docId) {
+            try {
+                await deleteDoc(doc(db, 'contacts', docId));
+                showToast('✅ Contact removed successfully!', 'success');
+                return true;
+            } catch (error) {
+                console.error('Error removing contact:', error);
+                showToast('❌ Error removing contact. Please try again.', 'error');
+                return false;
+            }
+        }
+
         // Enhanced toast notification system
         function showToast(message, type = 'success') {
             const toastContainer = document.getElementById('toastContainer');
@@ -1443,6 +1924,32 @@
             }
         }
 
+        // Admin section management
+        function showAdminSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.admin-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.admin-section-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show target section
+            const targetSection = document.getElementById(sectionName + 'Section');
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                currentAdminSection = sectionName;
+            }
+            
+            // Add active class to clicked tab
+            const activeTab = document.querySelector(`[data-section="${sectionName}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+        }
+
         // Admin fee calculation logic
         function calculateAdminFee(requestAmount) {
             if (requestAmount <= 25000) {
@@ -1515,6 +2022,54 @@
             });
         }
 
+        // Phone number validation with blacklist check
+        async function validatePhoneNumber(phoneNumber) {
+            const phoneInput = document.getElementById('phoneNumber');
+            const validationMessage = document.getElementById('phoneValidationMessage');
+            const submitButton = document.getElementById('submitRequestBtn');
+            const blacklistWarning = document.getElementById('blacklistWarning');
+            const blacklistMessage = document.getElementById('blacklistMessage');
+            
+            if (!phoneNumber) {
+                validationMessage.classList.add('hidden');
+                submitButton.disabled = false;
+                submitButton.classList.remove('btn-primary:disabled');
+                blacklistWarning.classList.add('hidden');
+                return;
+            }
+            
+            // Check blacklist
+            const blacklistResult = await checkBlacklist(phoneNumber);
+            
+            if (blacklistResult.isBlacklisted) {
+                phoneInput.classList.add('error');
+                validationMessage.className = 'mt-2 text-sm text-red-600 font-medium';
+                validationMessage.textContent = '🚫 This phone number is blacklisted';
+                validationMessage.classList.remove('hidden');
+                
+                submitButton.disabled = true;
+                submitButton.classList.add('btn-primary:disabled');
+                
+                // Show blacklist warning
+                if (blacklistResult.isPermanent) {
+                    blacklistMessage.textContent = `Nomor ini diblokir secara permanen. Alasan: ${blacklistResult.reason}`;
+                } else {
+                    const timeRemaining = getTimeRemaining(blacklistResult.endDate);
+                    blacklistMessage.textContent = `Nomor ini diblokir sampai ${formatDateOnly(blacklistResult.endDate)}. Sisa waktu: ${timeRemaining}. Alasan: ${blacklistResult.reason}`;
+                }
+                blacklistWarning.classList.remove('hidden');
+            } else {
+                phoneInput.classList.remove('error');
+                validationMessage.className = 'mt-2 text-sm text-green-600 font-medium';
+                validationMessage.textContent = '✅ Phone number is valid';
+                validationMessage.classList.remove('hidden');
+                
+                submitButton.disabled = false;
+                submitButton.classList.remove('btn-primary:disabled');
+                blacklistWarning.classList.add('hidden');
+            }
+        }
+
         // Generate WhatsApp message
         function generateWhatsAppMessage(formData) {
             const requestAmount = parseInt(formData.requestAmount);
@@ -1549,6 +2104,13 @@ Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
         // Enhanced fund request form submission
         async function submitFundRequest(formData) {
             try {
+                // Double-check blacklist before submission
+                const blacklistResult = await checkBlacklist(formData.phoneNumber);
+                if (blacklistResult.isBlacklisted) {
+                    showToast('🚫 This phone number is blacklisted and cannot submit requests!', 'error');
+                    return;
+                }
+                
                 const requestAmount = parseInt(formData.requestAmount);
                 const adminFee = calculateAdminFee(requestAmount);
                 const termFee = parseInt(formData.termFee);
@@ -1562,9 +2124,13 @@ Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
                 const dueDate = new Date(submissionDate);
                 dueDate.setDate(dueDate.getDate() + paymentTermDays);
                 
+                // Get contact info if available
+                const contactInfo = await getContactByPhone(formData.phoneNumber);
+                
                 const docData = {
                     phoneNumber: normalizedPhoneNumber,
                     originalPhoneNumber: formData.phoneNumber, // Keep original for reference
+                    contactName: contactInfo ? contactInfo.name : null,
                     service: formData.service,
                     requestAmount: requestAmount,
                     adminFee: adminFee,
@@ -1755,6 +2321,16 @@ Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
                         `;
                     }
                     
+                    // Contact name display
+                    let contactNameHTML = '';
+                    if (data.contactName) {
+                        contactNameHTML = `
+                            <div class="flex items-center mt-1">
+                                <span class="verified-contact">✓ ${data.contactName}</span>
+                            </div>
+                        `;
+                    }
+                    
                     resultsHTML += `
                         <div class="card rounded-2xl p-6 border-l-4 ${borderColor} hover:shadow-2xl transition-all duration-300">
                             <div class="flex justify-between items-start mb-6">
@@ -1762,6 +2338,7 @@ Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
                                     <h3 class="text-xl font-bold text-gray-800 mb-2">${data.service}</h3>
                                     <p class="text-gray-500 text-sm">Request ID: ${result.id.substring(0, 8).toUpperCase()}</p>
                                     <p class="text-gray-400 text-xs mt-1">Phone: ${data.originalPhoneNumber || data.phoneNumber}</p>
+                                    ${contactNameHTML}
                                     ${timeRemainingHTML}
                                 </div>
                                 <span class="status-badge ${statusColor}">${statusIcon} ${statusText}</span>
@@ -1888,6 +2465,44 @@ Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
             document.getElementById('overdueCount').textContent = overdueCount;
         }
 
+        // Update blacklist statistics
+        function updateBlacklistStatistics() {
+            const now = new Date();
+            const totalCount = allBlacklist.length;
+            const activeCount = allBlacklist.filter(item => {
+                const data = item.data;
+                if (data.isPermanent) return true;
+                const endDate = data.endDate.toDate();
+                return now < endDate;
+            }).length;
+            const expiredCount = allBlacklist.filter(item => {
+                const data = item.data;
+                if (data.isPermanent) return false;
+                const endDate = data.endDate.toDate();
+                return now >= endDate;
+            }).length;
+            const permanentCount = allBlacklist.filter(item => item.data.isPermanent).length;
+
+            document.getElementById('totalBlacklistCount').textContent = totalCount;
+            document.getElementById('activeBlacklistCount').textContent = activeCount;
+            document.getElementById('expiredBlacklistCount').textContent = expiredCount;
+            document.getElementById('permanentBlacklistCount').textContent = permanentCount;
+        }
+
+        // Update contact statistics
+        function updateContactStatistics() {
+            const totalCount = allContacts.length;
+            const now = new Date();
+            const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const recentCount = allContacts.filter(contact => {
+                const addedDate = contact.data.addedDate.toDate();
+                return addedDate >= thisMonth;
+            }).length;
+
+            document.getElementById('totalContactsCount').textContent = totalCount;
+            document.getElementById('recentContactsCount').textContent = recentCount;
+        }
+
         // Filter submissions based on current filter
         function filterSubmissions() {
             let filteredSubmissions = allSubmissions;
@@ -1915,7 +2530,7 @@ Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
             if (submissions.length === 0) {
                 tableHTML = `
                     <tr>
-                        <td colspan="10" class="px-6 py-12 text-center text-gray-500">
+                        <td colspan="11" class="px-6 py-12 text-center text-gray-500">
                             <div class="icon-wrapper mx-auto mb-4 opacity-50">
                                 <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -1937,6 +2552,12 @@ Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
                         overdueIndicator = '<span class="overdue-indicator">OVERDUE</span>';
                     }
                     
+                    // Contact name display
+                    let contactNameDisplay = '-';
+                    if (data.contactName) {
+                        contactNameDisplay = `<span class="font-semibold text-green-700">${data.contactName}</span><span class="verified-contact ml-2">✓ Verified</span>`;
+                    }
+                    
                     tableHTML += `
                         <tr class="table-row ${isOverdueStatus ? 'bg-red-50 border-l-4 border-l-red-500' : ''}">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
@@ -1944,6 +2565,7 @@ Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
                                 ${data.originalPhoneNumber && data.originalPhoneNumber !== data.phoneNumber ? 
                                     `<br><span class="text-xs text-gray-500">(Normalized: ${data.phoneNumber})</span>` : ''}
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${contactNameDisplay}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">${data.service}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-semibold">${formatCurrency(data.requestAmount)}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-semibold">${formatCurrency(data.adminFee)}</td>
@@ -2005,26 +2627,201 @@ Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
             });
         }
 
+        // Render blacklist table
+        function renderBlacklistTable() {
+            const tableBody = document.getElementById('blacklistTableBody');
+            let tableHTML = '';
+            
+            if (allBlacklist.length === 0) {
+                tableHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                            <div class="icon-wrapper mx-auto mb-4 opacity-50">
+                                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
+                                </svg>
+                            </div>
+                            <p class="text-lg font-medium">No blacklisted numbers found.</p>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                const now = new Date();
+                allBlacklist.forEach((blacklistItem) => {
+                    const data = blacklistItem.data;
+                    const docId = blacklistItem.id;
+                    
+                    let statusDisplay, timeRemainingDisplay;
+                    if (data.isPermanent) {
+                        statusDisplay = '<span class="status-badge status-blacklisted">🔒 Permanent</span>';
+                        timeRemainingDisplay = '<span class="font-bold text-red-600">Permanent</span>';
+                    } else {
+                        const endDate = data.endDate.toDate();
+                        const isActive = now < endDate;
+                        
+                        if (isActive) {
+                            statusDisplay = '<span class="status-badge status-unpaid">⏳ Active</span>';
+                            timeRemainingDisplay = `<span class="countdown-timer">${getTimeRemaining(endDate)}</span>`;
+                        } else {
+                            statusDisplay = '<span class="status-badge status-paid">✅ Expired</span>';
+                            timeRemainingDisplay = '<span class="text-green-600 font-semibold">Expired</span>';
+                        }
+                    }
+                    
+                    tableHTML += `
+                        <tr class="table-row">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                                ${data.originalPhoneNumber || data.phoneNumber}
+                                ${data.originalPhoneNumber && data.originalPhoneNumber !== data.phoneNumber ? 
+                                    `<br><span class="text-xs text-gray-500">(Normalized: ${data.phoneNumber})</span>` : ''}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${formatDate(data.startDate)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${data.isPermanent ? 'Never' : formatDateOnly(data.endDate)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${timeRemainingDisplay}</td>
+                            <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">${data.reason || '-'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${statusDisplay}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <button class="btn-danger text-white font-bold px-4 py-2 rounded-lg text-xs" 
+                                        onclick="removeFromBlacklist('${docId}')">
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            tableBody.innerHTML = tableHTML;
+        }
+
+        // Render contacts table
+        function renderContactsTable() {
+            const tableBody = document.getElementById('contactsTableBody');
+            let tableHTML = '';
+            
+            if (allContacts.length === 0) {
+                tableHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                            <div class="icon-wrapper mx-auto mb-4 opacity-50">
+                                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                            <p class="text-lg font-medium">No verified contacts found.</p>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                allContacts.forEach((contact) => {
+                    const data = contact.data;
+                    const docId = contact.id;
+                    
+                    tableHTML += `
+                        <tr class="table-row">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">${data.name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                ${data.originalPhoneNumber || data.phoneNumber}
+                                ${data.originalPhoneNumber && data.originalPhoneNumber !== data.phoneNumber ? 
+                                    `<br><span class="text-xs text-gray-500">(Normalized: ${data.phoneNumber})</span>` : ''}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${formatDate(data.addedDate)}</td>
+                            <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">${data.notes || '-'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <button class="btn-danger text-white font-bold px-4 py-2 rounded-lg text-xs" 
+                                        onclick="removeContact('${docId}')">
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            tableBody.innerHTML = tableHTML;
+        }
+
+        // Make functions globally available
+        window.removeFromBlacklist = removeFromBlacklist;
+        window.removeContact = removeContact;
+
         // Enhanced admin panel functionality
         function loadAdminData() {
+            // Load submissions
             if (adminUnsubscribe) {
                 adminUnsubscribe();
             }
             
-            const q = query(collection(db, 'submissions'), orderBy('submissionDate', 'desc'));
+            const submissionsQuery = query(collection(db, 'submissions'), orderBy('submissionDate', 'desc'));
             
-            adminUnsubscribe = onSnapshot(q, (querySnapshot) => {
+            adminUnsubscribe = onSnapshot(submissionsQuery, async (querySnapshot) => {
                 allSubmissions = [];
                 
-                querySnapshot.forEach((doc) => {
+                for (const docSnapshot of querySnapshot.docs) {
+                    const data = docSnapshot.data();
+                    
+                    // Get contact info if not already present
+                    if (!data.contactName && data.phoneNumber) {
+                        const contactInfo = await getContactByPhone(data.phoneNumber);
+                        if (contactInfo) {
+                            // Update the submission with contact name
+                            await updateDoc(doc(db, 'submissions', docSnapshot.id), {
+                                contactName: contactInfo.name
+                            });
+                            data.contactName = contactInfo.name;
+                        }
+                    }
+                    
                     allSubmissions.push({
+                        id: docSnapshot.id,
+                        data: data
+                    });
+                }
+                
+                updateStatistics();
+                filterSubmissions();
+            });
+
+            // Load blacklist
+            if (blacklistUnsubscribe) {
+                blacklistUnsubscribe();
+            }
+            
+            const blacklistQuery = query(collection(db, 'blacklist'), orderBy('startDate', 'desc'));
+            
+            blacklistUnsubscribe = onSnapshot(blacklistQuery, (querySnapshot) => {
+                allBlacklist = [];
+                
+                querySnapshot.forEach((doc) => {
+                    allBlacklist.push({
                         id: doc.id,
                         data: doc.data()
                     });
                 });
                 
-                updateStatistics();
-                filterSubmissions();
+                updateBlacklistStatistics();
+                renderBlacklistTable();
+            });
+
+            // Load contacts
+            if (contactsUnsubscribe) {
+                contactsUnsubscribe();
+            }
+            
+            const contactsQuery = query(collection(db, 'contacts'), orderBy('addedDate', 'desc'));
+            
+            contactsUnsubscribe = onSnapshot(contactsQuery, (querySnapshot) => {
+                allContacts = [];
+                
+                querySnapshot.forEach((doc) => {
+                    allContacts.push({
+                        id: doc.id,
+                        data: doc.data()
+                    });
+                });
+                
+                updateContactStatistics();
+                renderContactsTable();
             });
         }
 
@@ -2047,6 +2844,14 @@ Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
                 if (adminUnsubscribe) {
                     adminUnsubscribe();
                     adminUnsubscribe = null;
+                }
+                if (blacklistUnsubscribe) {
+                    blacklistUnsubscribe();
+                    blacklistUnsubscribe = null;
+                }
+                if (contactsUnsubscribe) {
+                    contactsUnsubscribe();
+                    contactsUnsubscribe = null;
                 }
                 showView('dashboard');
             });
@@ -2113,6 +2918,14 @@ Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
                 }
             });
 
+            // Admin section tabs
+            document.querySelectorAll('.admin-section-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const sectionName = e.currentTarget.dataset.section;
+                    showAdminSection(sectionName);
+                });
+            });
+
             // Admin filter tabs
             document.querySelectorAll('.admin-filter-tab').forEach(tab => {
                 tab.addEventListener('click', (e) => {
@@ -2129,9 +2942,58 @@ Terima kasih telah menggunakan layanan Digital Fund! 🙏`;
                     filterSubmissions();
                 });
             });
+
+            // Blacklist form
+            document.getElementById('blacklistForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const phoneNumber = formData.get('blacklistPhone').trim();
+                const duration = formData.get('blacklistDuration');
+                const reason = formData.get('blacklistReason').trim();
+                
+                if (!phoneNumber || !duration) {
+                    showToast('⚠️ Please fill in all required fields', 'error');
+                    return;
+                }
+                
+                const success = await addToBlacklist(phoneNumber, duration, reason);
+                if (success) {
+                    e.target.reset();
+                }
+            });
+
+            // Contact form
+            document.getElementById('contactForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const name = formData.get('contactName').trim();
+                const phoneNumber = formData.get('contactPhone').trim();
+                const notes = formData.get('contactNotes').trim();
+                
+                if (!name || !phoneNumber) {
+                    showToast('⚠️ Please fill in all required fields', 'error');
+                    return;
+                }
+                
+                const success = await addContact(name, phoneNumber, notes);
+                if (success) {
+                    e.target.reset();
+                }
+            });
             
             // Fund request form
             document.getElementById('requestAmount').addEventListener('input', updateFeeDisplay);
+            
+            // Phone number validation with debounce
+            let phoneValidationTimeout;
+            document.getElementById('phoneNumber').addEventListener('input', (e) => {
+                clearTimeout(phoneValidationTimeout);
+                phoneValidationTimeout = setTimeout(() => {
+                    validatePhoneNumber(e.target.value.trim());
+                }, 500);
+            });
             
             document.getElementById('fundRequestForm').addEventListener('submit', async (e) => {
                 e.preventDefault();

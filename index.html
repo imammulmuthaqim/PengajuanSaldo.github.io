@@ -17,6 +17,7 @@
             --success: #10B981;
             --danger: #EF4444;
             --warning: #F59E0B;
+            --info: #3B82F6;
             --dark: #1F2937;
             --light: #F9FAFB;
             --gray: #6B7280;
@@ -215,6 +216,10 @@
             background: linear-gradient(135deg, var(--danger), #DC2626);
         }
 
+        .btn-info {
+            background: linear-gradient(135deg, var(--info), #2563EB);
+        }
+
         .detail-section {
             background: rgba(255, 255, 255, 0.9);
             padding: 20px;
@@ -273,6 +278,7 @@
         }
 
         .stat-menunggu { color: var(--warning); }
+        .stat-acc { color: var(--info); }
         .stat-lunas { color: var(--success); }
         .stat-jatuh-tempo { color: var(--danger); }
         .stat-penghasilan { color: var(--primary); }
@@ -326,9 +332,14 @@
             gap: 5px;
         }
 
-        .status-belum-bayar {
+        .status-menunggu {
             background-color: #FEF3C7;
             color: #92400E;
+        }
+
+        .status-acc {
+            background-color: #DBEAFE;
+            color: #1E40AF;
         }
 
         .status-lunas {
@@ -412,6 +423,10 @@
 
         .notification.error {
             background: linear-gradient(135deg, var(--danger), #DC2626);
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, var(--info), #2563EB);
         }
 
         @keyframes slideInRight {
@@ -788,7 +803,7 @@
                         </div>
                         <div class="detail-item">
                             <span>Status:</span>
-                            <span style="color: var(--warning); font-weight: 600;">Belum Bayar</span>
+                            <span style="color: var(--warning); font-weight: 600;">Menunggu ACC</span>
                         </div>
                         <div class="detail-item">
                             <span>Jatuh Tempo:</span>
@@ -828,7 +843,11 @@
                 <div class="stats">
                     <div class="stat-card">
                         <div class="stat-number stat-menunggu" id="statMenunggu">0</div>
-                        <div class="stat-label">Belum Bayar</div>
+                        <div class="stat-label">Menunggu ACC</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number stat-acc" id="statACC">0</div>
+                        <div class="stat-label">ACC (Belum Bayar)</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number stat-lunas" id="statLunas">0</div>
@@ -841,10 +860,6 @@
                     <div class="stat-card">
                         <div class="stat-number stat-penghasilan" id="statPenghasilan">Rp 0</div>
                         <div class="stat-label">Komisi Anda</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number stat-total-admin" id="statTotalAdmin">Rp 0</div>
-                        <div class="stat-label">Total Biaya Admin</div>
                     </div>
                 </div>
                 
@@ -878,12 +893,16 @@
                         <i class="fas fa-list"></i>
                         Semua
                     </button>
-                    <button class="filter-btn" data-filter="Belum Bayar">
+                    <button class="filter-btn" data-filter="Menunggu ACC">
                         <i class="fas fa-clock"></i>
-                        Belum Bayar
+                        Menunggu ACC
+                    </button>
+                    <button class="filter-btn" data-filter="ACC">
+                        <i class="fas fa-check-circle"></i>
+                        ACC (Belum Bayar)
                     </button>
                     <button class="filter-btn" data-filter="Lunas">
-                        <i class="fas fa-check-circle"></i>
+                        <i class="fas fa-check-double"></i>
                         Lunas
                     </button>
                     <button class="filter-btn" data-filter="Jatuh Tempo">
@@ -1062,7 +1081,7 @@
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
                 ${message}
             `;
 
@@ -1153,7 +1172,7 @@
                 biayaAdmin: biaya.biayaAdmin,
                 bagianPenyebar: biaya.bagianPenyebar,
                 bagianPemilik: biaya.bagianPemilik,
-                status: 'Belum Bayar',
+                status: 'Menunggu ACC', // Status awal
                 tanggalPengajuan,
                 jatuhTempo: jatuhTempo.toISOString(),
                 waktuDibuat: new Date().toISOString(),
@@ -1167,7 +1186,7 @@
 
             database.ref().update(updates)
                 .then(() => {
-                    showNotification('Catatan pinjaman berhasil disimpan!');
+                    showNotification('Catatan pinjaman berhasil disimpan! Status: Menunggu ACC', 'info');
                     document.getElementById('pengajuanForm').reset();
                     document.getElementById('biayaAdmin').textContent = 'Rp 0';
                     document.getElementById('bagianPenyebar').textContent = 'Rp 0';
@@ -1200,7 +1219,7 @@
             const filtered = {};
             Object.keys(pengajuanData).forEach(key => {
                 const data = pengajuanData[key];
-                const isJatuhTempo = new Date() > new Date(data.jatuhTempo) && data.status === 'Belum Bayar';
+                const isJatuhTempo = new Date() > new Date(data.jatuhTempo) && data.status === 'ACC';
                 const status = isJatuhTempo ? 'Jatuh Tempo' : data.status;
                 
                 if (filter === status) {
@@ -1225,8 +1244,11 @@
                     case 'semua':
                         message = 'Belum ada catatan pinjaman';
                         break;
-                    case 'Belum Bayar':
-                        message = 'Tidak ada pinjaman yang belum bayar';
+                    case 'Menunggu ACC':
+                        message = 'Tidak ada pinjaman yang menunggu ACC';
+                        break;
+                    case 'ACC':
+                        message = 'Belum ada pinjaman yang sudah di-ACC';
                         break;
                     case 'Lunas':
                         message = 'Belum ada pinjaman yang lunas';
@@ -1245,19 +1267,20 @@
                 return;
             }
 
-            // Urutkan berdasarkan: Jatuh Tempo -> Belum Bayar -> Lunas (terbaru dulu)
+            // Urutkan berdasarkan: Jatuh Tempo -> Menunggu ACC -> ACC -> Lunas (terbaru dulu)
             const sortedKeys = Object.keys(filteredData).sort((a, b) => {
                 const dataA = filteredData[a];
                 const dataB = filteredData[b];
                 
-                const statusA = new Date() > new Date(dataA.jatuhTempo) && dataA.status === 'Belum Bayar' ? 'Jatuh Tempo' : dataA.status;
-                const statusB = new Date() > new Date(dataB.jatuhTempo) && dataB.status === 'Belum Bayar' ? 'Jatuh Tempo' : dataB.status;
+                const statusA = new Date() > new Date(dataA.jatuhTempo) && dataA.status === 'ACC' ? 'Jatuh Tempo' : dataA.status;
+                const statusB = new Date() > new Date(dataB.jatuhTempo) && dataB.status === 'ACC' ? 'Jatuh Tempo' : dataB.status;
                 
-                // Priority: Jatuh Tempo (1) > Belum Bayar (2) > Lunas (3)
+                // Priority: Jatuh Tempo (1) > Menunggu ACC (2) > ACC (3) > Lunas (4)
                 const priority = {
                     'Jatuh Tempo': 1,
-                    'Belum Bayar': 2,
-                    'Lunas': 3
+                    'Menunggu ACC': 2,
+                    'ACC': 3,
+                    'Lunas': 4
                 };
                 
                 if (priority[statusA] !== priority[statusB]) {
@@ -1270,17 +1293,49 @@
 
             sortedKeys.forEach(key => {
                 const data = filteredData[key];
-                const isJatuhTempo = new Date() > new Date(data.jatuhTempo) && data.status === 'Belum Bayar';
+                const isJatuhTempo = new Date() > new Date(data.jatuhTempo) && data.status === 'ACC';
                 const status = isJatuhTempo ? 'Jatuh Tempo' : data.status;
 
-                const statusClass = status === 'Belum Bayar' ? 'status-belum-bayar' : 
+                const statusClass = status === 'Menunggu ACC' ? 'status-menunggu' : 
+                                  status === 'ACC' ? 'status-acc' :
                                   status === 'Lunas' ? 'status-lunas' : 'status-jatuh-tempo';
 
-                const statusIcon = status === 'Belum Bayar' ? 'fa-clock' : 
-                                 status === 'Lunas' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+                const statusIcon = status === 'Menunggu ACC' ? 'fa-clock' : 
+                                 status === 'ACC' ? 'fa-check-circle' :
+                                 status === 'Lunas' ? 'fa-check-double' : 'fa-exclamation-triangle';
 
                 const pengajuanItem = document.createElement('div');
                 pengajuanItem.className = 'pengajuan-item';
+                
+                let actionButtons = '';
+                
+                if (status === 'Menunggu ACC') {
+                    actionButtons = `
+                        <button class="action-btn btn-info" onclick="ubahStatus('${key}', 'ACC')">
+                            <i class="fas fa-check"></i>
+                            ACC Transfer
+                        </button>
+                    `;
+                } else if (status === 'ACC') {
+                    actionButtons = `
+                        <button class="action-btn btn-success" onclick="ubahStatus('${key}', 'Lunas')">
+                            <i class="fas fa-check-double"></i>
+                            Tandai Lunas
+                        </button>
+                        <button class="action-btn btn-warning" onclick="ubahStatus('${key}', 'Menunggu ACC')">
+                            <i class="fas fa-undo"></i>
+                            Batal ACC
+                        </button>
+                    `;
+                } else if (status === 'Lunas') {
+                    actionButtons = `
+                        <button class="action-btn btn-warning" onclick="ubahStatus('${key}', 'ACC')">
+                            <i class="fas fa-undo"></i>
+                            Kembali ke ACC
+                        </button>
+                    `;
+                }
+
                 pengajuanItem.innerHTML = `
                     <div class="pengajuan-header">
                         <div>
@@ -1313,18 +1368,7 @@
                         </div>
                     </div>
                     <div class="pengajuan-actions">
-                        ${status !== 'Lunas' ? `
-                            <button class="action-btn btn-success" onclick="ubahStatus('${key}', 'Lunas')">
-                                <i class="fas fa-check"></i>
-                                Tandai Lunas
-                            </button>
-                        ` : ''}
-                        ${status === 'Belum Bayar' ? `
-                            <button class="action-btn btn-warning" onclick="ubahStatus('${key}', 'Belum Bayar')">
-                                <i class="fas fa-clock"></i>
-                                Belum Bayar
-                            </button>
-                        ` : ''}
+                        ${actionButtons}
                         <button class="action-btn btn-danger" onclick="showDeleteModal('${key}')">
                             <i class="fas fa-trash"></i>
                             Hapus
@@ -1338,18 +1382,21 @@
 
         // Update statistik
         function updateStats(pengajuanData) {
-            let menunggu = 0;
+            let menungguACC = 0;
+            let acc = 0;
             let lunas = 0;
             let jatuhTempo = 0;
             let totalKomisiDiperoleh = 0;
             let totalBiaya = 0;
 
             Object.values(pengajuanData).forEach(data => {
-                if (data.status === 'Belum Bayar') {
+                if (data.status === 'Menunggu ACC') {
+                    menungguACC++;
+                } else if (data.status === 'ACC') {
                     if (new Date() > new Date(data.jatuhTempo)) {
                         jatuhTempo++;
                     } else {
-                        menunggu++;
+                        acc++;
                     }
                 } else if (data.status === 'Lunas') {
                     lunas++;
@@ -1358,11 +1405,11 @@
                 }
             });
 
-            document.getElementById('statMenunggu').textContent = menunggu;
+            document.getElementById('statMenunggu').textContent = menungguACC;
+            document.getElementById('statACC').textContent = acc;
             document.getElementById('statLunas').textContent = lunas;
             document.getElementById('statJatuhTempo').textContent = jatuhTempo;
             document.getElementById('statPenghasilan').textContent = formatRupiah(totalKomisiDiperoleh);
-            document.getElementById('statTotalAdmin').textContent = formatRupiah(totalBiaya);
             document.getElementById('saldoAdmin').textContent = formatRupiah(totalKomisiDiperoleh);
             document.getElementById('totalKomisi').textContent = formatRupiah(totalKomisiDiperoleh);
             document.getElementById('komisiTersedia').textContent = formatRupiah(totalKomisiDiperoleh);
@@ -1380,7 +1427,15 @@
 
             database.ref().update(updates)
                 .then(() => {
-                    showNotification(`Status berhasil diubah menjadi ${status}`);
+                    let message = '';
+                    if (status === 'ACC') {
+                        message = 'Status diubah menjadi ACC (Dana sudah ditransfer)';
+                    } else if (status === 'Lunas') {
+                        message = 'Status diubah menjadi Lunas (Pinjaman sudah dibayar)';
+                    } else if (status === 'Menunggu ACC') {
+                        message = 'Status dikembalikan ke Menunggu ACC';
+                    }
+                    showNotification(message, 'info');
                 })
                 .catch((error) => {
                     console.error('Error:', error);

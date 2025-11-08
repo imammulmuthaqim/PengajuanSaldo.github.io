@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DanaFlow - Sistem Penyebaran Dana</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <style>
+        :root {
+            --primary: #8B5CF6;
+            --primary-dark: #7C3AED;
+            --primary-light: #A78BFA;
+            --secondary: #06B6D4;
+            --accent: #F59E0B;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --dark: #1F2937;
+            --light: #F9FAFB;
+            --gray: #6B7280;
+            --glass: rgba(255, 255, 255, 0.25);
+            --glass-dark: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .navbar {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px var(--glass-dark);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            color: var(--primary-light);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--light);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #D97706);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #DC2626);
+        }
+
+        .detail-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 16px;
+            margin-top: 20px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #E5E7EB;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .admin-panel {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-menunggu { color: var(--warning); }
+        .stat-lunas { color: var(--success); }
+        .stat-jatuh-tempo { color: var(--danger); }
+        .stat-penghasilan { color: var(--primary); }
+        .stat-total-admin { color: var(--secondary); }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .pengajuan-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .pengajuan-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease;
+        }
+
+        .pengajuan-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .pengajuan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pengajuan-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-belum-bayar {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+
+        .status-lunas {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+
+        .status-jatuh-tempo {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .pengajuan-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .detail-value {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--dark);
+        }
+
+        .pengajuan-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 400px;
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, var(--danger), #DC2626);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .withdraw-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 16px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .saldo-admin {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .saldo-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .saldo-detail-item {
+            padding: 12px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 10px;
+        }
+
+        .penyebar-info {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 16px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .penyebar-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .tab-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: transparent;
+            color: var(--light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .filter-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: scaleIn 0.3s ease;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+        }
+
+        .modal-text {
+            color: var(--dark);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-btn-confirm {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .modal-btn-cancel {
+            background: #E5E7EB;
+            color: var(--dark);
+        }
+
+        .modal-btn-danger {
+            background: linear-gradient(135deg, var(--danger), #DC2626);
+            color: white;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Withdraw Modal Specific */
+        .withdraw-amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #F0F9FF, #E0F2FE);
+            border-radius: 15px;
+            border: 2px dashed var(--primary-light);
+        }
+
+        .withdraw-info {
+            background: #F0FDF4;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--success);
+            margin: 15px 0;
+        }
+
+        .withdraw-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Delete Modal Specific */
+        .delete-warning {
+            background: #FEF2F2;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--danger);
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .delete-warning i {
+            color: var(--danger);
+            font-size: 1.5rem;
+        }
+
+        .pengajuan-to-delete {
+            background: #F8FAFC;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid #E2E8F0;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-tabs {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .pengajuan-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .pengajuan-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .action-btn {
+                flex: 1;
+                justify-content: center;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+            
+            .saldo-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .tab-filters {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                DanaFlow
+            </div>
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="form">
+                    <i class="fas fa-plus-circle"></i>
+                    Catat Pinjaman
+                </button>
+                <button class="nav-tab" data-tab="admin">
+                    <i class="fas fa-chart-line"></i>
+                    Dashboard
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Form Section -->
+        <div class="content-section active" id="form-section">
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="fas fa-plus-circle"></i>
+                    Catat Pinjaman Baru
+                </h2>
+                
+                <form id="pengajuanForm">
+                    <div class="form-group">
+                        <label for="nama">Nama Peminjam</label>
+                        <input type="text" id="nama" placeholder="Masukkan nama peminjam" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="totalDana">Total Pinjaman</label>
+                        <input type="number" id="totalDana" min="1000" placeholder="Contoh: 50000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="penyebar">Nama Penyebar</label>
+                        <input type="text" id="penyebar" placeholder="Nama Anda sebagai penyebar" required>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">Rincian Biaya</h3>
+                        <div class="detail-item">
+                            <span>Biaya Admin Total:</span>
+                            <span id="biayaAdmin">Rp 0</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Komisi Penyebar:</span>
+                            <span id="bagianPenyebar" style="color: var(--success); font-weight: 700;">Rp 0</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Bagian Sistem:</span>
+                            <span id="bagianPemilik">Rp 0</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Status:</span>
+                            <span style="color: var(--warning); font-weight: 600;">Belum Bayar</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Jatuh Tempo:</span>
+                            <span id="jatuhTempo">-</span>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i>
+                        Simpan Catatan
+                    </button>
+                </form>
+
+                <div class="penyebar-info">
+                    <div class="penyebar-name" id="currentPenyebar">-</div>
+                    <p>Komisi Anda akan terkumpul otomatis ketika pinjaman dilunasi</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Section -->
+        <div class="content-section" id="admin-section">
+            <div class="card admin-panel">
+                <div class="admin-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-chart-line"></i>
+                        Dashboard Penyebar
+                    </h2>
+                    <div class="btn-group">
+                        <button class="btn btn-success" id="refreshBtn">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number stat-menunggu" id="statMenunggu">0</div>
+                        <div class="stat-label">Belum Bayar</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number stat-lunas" id="statLunas">0</div>
+                        <div class="stat-label">Lunas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number stat-jatuh-tempo" id="statJatuhTempo">0</div>
+                        <div class="stat-label">Jatuh Tempo</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number stat-penghasilan" id="statPenghasilan">Rp 0</div>
+                        <div class="stat-label">Komisi Anda</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number stat-total-admin" id="statTotalAdmin">Rp 0</div>
+                        <div class="stat-label">Total Biaya Admin</div>
+                    </div>
+                </div>
+                
+                <div class="withdraw-section">
+                    <h3>Komisi Tersedia</h3>
+                    <div class="saldo-admin" id="saldoAdmin">Rp 0</div>
+                    
+                    <div class="saldo-details">
+                        <div class="saldo-detail-item">
+                            <div class="detail-label">Total Komisi Diperoleh</div>
+                            <div class="detail-value" id="totalKomisi">Rp 0</div>
+                        </div>
+                        <div class="saldo-detail-item">
+                            <div class="detail-label">Komisi Tersedia</div>
+                            <div class="detail-value" id="komisiTersedia">Rp 0</div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-warning" id="withdrawBtn">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Tarik Komisi
+                    </button>
+                    <p style="margin-top: 10px; font-size: 0.8rem; color: var(--gray);">
+                        Komisi akan ditransfer ke rekening Anda
+                    </p>
+                </div>
+                
+                <!-- Filter Tabs -->
+                <div class="tab-filters">
+                    <button class="filter-btn active" data-filter="semua">
+                        <i class="fas fa-list"></i>
+                        Semua
+                    </button>
+                    <button class="filter-btn" data-filter="Belum Bayar">
+                        <i class="fas fa-clock"></i>
+                        Belum Bayar
+                    </button>
+                    <button class="filter-btn" data-filter="Lunas">
+                        <i class="fas fa-check-circle"></i>
+                        Lunas
+                    </button>
+                    <button class="filter-btn" data-filter="Jatuh Tempo">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Jatuh Tempo
+                    </button>
+                </div>
+                
+                <h3 style="margin: 20px 0 10px; color: var(--light);">Daftar Pinjaman</h3>
+                <div class="pengajuan-list" id="pengajuanList">
+                    <!-- Data pengajuan akan dimasukkan di sini oleh JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Penarikan Komisi -->
+    <div class="modal" id="withdrawModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-money-bill-wave"></i>
+                    Tarik Komisi
+                </h3>
+                <button class="close-modal" id="closeWithdrawModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="withdraw-amount" id="withdrawAmount">
+                    Rp 0
+                </div>
+                <div class="withdraw-info">
+                    <p><strong>Konfirmasi Penarikan Komisi</strong></p>
+                    <p>Komisi akan ditransfer ke rekening penyebar</p>
+                    <div class="withdraw-details">
+                        <span>Penerima:</span>
+                        <span id="penyebarName">-</span>
+                    </div>
+                    <div class="withdraw-details">
+                        <span>Biaya Transfer:</span>
+                        <span>Gratis</span>
+                    </div>
+                </div>
+                <p class="modal-text">
+                    Apakah Anda yakin ingin menarik komisi sebesar <strong id="confirmWithdrawAmount">Rp 0</strong>?
+                    Proses penarikan akan diproses dalam 1x24 jam.
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" id="cancelWithdraw">
+                    <i class="fas fa-times"></i>
+                    Batal
+                </button>
+                <button class="modal-btn modal-btn-confirm" id="confirmWithdraw">
+                    <i class="fas fa-check"></i>
+                    Ya, Tarik Komisi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Hapus Catatan -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Hapus Catatan Pinjaman
+                </h3>
+                <button class="close-modal" id="closeDeleteModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="delete-warning">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <strong>Peringatan!</strong>
+                        <p>Data pinjaman yang dihapus tidak dapat dikembalikan</p>
+                    </div>
+                </div>
+                <div class="pengajuan-to-delete" id="pengajuanToDelete">
+                    <!-- Data pengajuan yang akan dihapus -->
+                </div>
+                <p class="modal-text">
+                    Apakah Anda yakin ingin menghapus catatan pinjaman ini? Tindakan ini akan menghapus data secara permanen dari sistem.
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" id="cancelDelete">
+                    <i class="fas fa-times"></i>
+                    Batal
+                </button>
+                <button class="modal-btn modal-btn-danger" id="confirmDelete">
+                    <i class="fas fa-trash"></i>
+                    Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAHqg6LY-Vr3DsfNrMA9gwTyl0xi7jiQWc",
+            authDomain: "danapengajuan-3fe67.firebaseapp.com",
+            databaseURL: "https://danapengajuan-3fe67-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "danapengajuan-3fe67",
+            storageBucket: "danapengajuan-3fe67.firebasestorage.app",
+            messagingSenderId: "231562139072",
+            appId: "1:231562139072:web:ef64922c3d4b5d1fe92425"
+        };
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Variabel global
+        let saldoPenyebar = 0;
+        let totalKomisi = 0;
+        let totalBiayaAdmin = 0;
+        let currentPenyebar = "";
+        let pengajuanToDeleteId = null;
+        let currentFilter = "semua";
+        let allPengajuanData = {};
+
+        // Format Rupiah
+        function formatRupiah(angka) {
+            return 'Rp ' + angka.toLocaleString('id-ID');
+        }
+
+        // Hitung jatuh tempo (3 hari dari sekarang)
+        function hitungJatuhTempo() {
+            const now = new Date();
+            now.setDate(now.getDate() + 3);
+            return now.toLocaleString('id-ID', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Hitung biaya admin dan pembagian
+        function hitungBiayaAdmin(totalDana) {
+            let biayaAdmin = 0;
+            let bagianPenyebar = 0;
+            let bagianPemilik = 0;
+
+            if (totalDana <= 30000) {
+                biayaAdmin = 3000;
+                bagianPenyebar = 1000;
+                bagianPemilik = 2000;
+            } else {
+                biayaAdmin = 5000;
+                bagianPenyebar = 2000;
+                bagianPemilik = 3000;
+            }
+
+            return {
+                biayaAdmin,
+                bagianPenyebar,
+                bagianPemilik
+            };
+        }
+
+        // Tampilkan notifikasi
+        function showNotification(message, type = 'success') {
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+                
+                // Update active tab
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show target section
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(`${targetTab}-section`).classList.add('active');
+            });
+        });
+
+        // Filter tabs
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filter = this.getAttribute('data-filter');
+                
+                // Update active filter
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                currentFilter = filter;
+                tampilkanDataPengajuan(allPengajuanData);
+            });
+        });
+
+        // Update detail biaya saat input berubah
+        document.getElementById('totalDana').addEventListener('input', function() {
+            const totalDana = parseInt(this.value) || 0;
+            const biaya = hitungBiayaAdmin(totalDana);
+
+            document.getElementById('biayaAdmin').textContent = formatRupiah(biaya.biayaAdmin);
+            document.getElementById('bagianPenyebar').textContent = formatRupiah(biaya.bagianPenyebar);
+            document.getElementById('bagianPemilik').textContent = formatRupiah(biaya.bagianPemilik);
+            document.getElementById('jatuhTempo').textContent = hitungJatuhTempo();
+        });
+
+        // Update current penyebar
+        document.getElementById('penyebar').addEventListener('input', function() {
+            currentPenyebar = this.value.trim();
+            document.getElementById('currentPenyebar').textContent = currentPenyebar || '-';
+            document.getElementById('penyebarName').textContent = currentPenyebar || '-';
+        });
+
+        // Kirim form pengajuan
+        document.getElementById('pengajuanForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const nama = document.getElementById('nama').value.trim();
+            const totalDana = parseInt(document.getElementById('totalDana').value);
+            const penyebar = document.getElementById('penyebar').value.trim();
+
+            if (!nama || !totalDana || !penyebar) {
+                showNotification('Harap isi semua field!', 'error');
+                return;
+            }
+
+            if (totalDana < 1000) {
+                showNotification('Total pinjaman minimal Rp 1.000!', 'error');
+                return;
+            }
+
+            const biaya = hitungBiayaAdmin(totalDana);
+            const tanggalPengajuan = new Date().toISOString();
+            const jatuhTempo = new Date();
+            jatuhTempo.setDate(jatuhTempo.getDate() + 3);
+
+            const pengajuanData = {
+                nama,
+                totalDana,
+                biayaAdmin: biaya.biayaAdmin,
+                bagianPenyebar: biaya.bagianPenyebar,
+                bagianPemilik: biaya.bagianPemilik,
+                status: 'Belum Bayar',
+                tanggalPengajuan,
+                jatuhTempo: jatuhTempo.toISOString(),
+                waktuDibuat: new Date().toISOString(),
+                penyebar: penyebar
+            };
+
+            // Simpan ke Firebase
+            const newPengajuanKey = database.ref().child('pengajuan').push().key;
+            const updates = {};
+            updates[`/pengajuan/${newPengajuanKey}`] = pengajuanData;
+
+            database.ref().update(updates)
+                .then(() => {
+                    showNotification('Catatan pinjaman berhasil disimpan!');
+                    document.getElementById('pengajuanForm').reset();
+                    document.getElementById('biayaAdmin').textContent = 'Rp 0';
+                    document.getElementById('bagianPenyebar').textContent = 'Rp 0';
+                    document.getElementById('bagianPemilik').textContent = 'Rp 0';
+                    document.getElementById('jatuhTempo').textContent = '-';
+                    document.getElementById('currentPenyebar').textContent = '-';
+                    
+                    // Switch to admin tab setelah berhasil simpan
+                    document.querySelector('.nav-tab[data-tab="admin"]').click();
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    showNotification('Terjadi kesalahan saat menyimpan catatan!', 'error');
+                });
+        });
+
+        // Ambil data pengajuan dari Firebase
+        function ambilDataPengajuan() {
+            database.ref('pengajuan').on('value', (snapshot) => {
+                allPengajuanData = snapshot.val() || {};
+                tampilkanDataPengajuan(allPengajuanData);
+                updateStats(allPengajuanData);
+            });
+        }
+
+        // Filter data berdasarkan status
+        function filterData(pengajuanData, filter) {
+            if (filter === 'semua') return pengajuanData;
+            
+            const filtered = {};
+            Object.keys(pengajuanData).forEach(key => {
+                const data = pengajuanData[key];
+                const isJatuhTempo = new Date() > new Date(data.jatuhTempo) && data.status === 'Belum Bayar';
+                const status = isJatuhTempo ? 'Jatuh Tempo' : data.status;
+                
+                if (filter === status) {
+                    filtered[key] = data;
+                }
+            });
+            
+            return filtered;
+        }
+
+        // Tampilkan data pengajuan di panel admin
+        function tampilkanDataPengajuan(pengajuanData) {
+            const pengajuanList = document.getElementById('pengajuanList');
+            pengajuanList.innerHTML = '';
+
+            // Filter data
+            const filteredData = filterData(pengajuanData, currentFilter);
+
+            if (Object.keys(filteredData).length === 0) {
+                let message = '';
+                switch(currentFilter) {
+                    case 'semua':
+                        message = 'Belum ada catatan pinjaman';
+                        break;
+                    case 'Belum Bayar':
+                        message = 'Tidak ada pinjaman yang belum bayar';
+                        break;
+                    case 'Lunas':
+                        message = 'Belum ada pinjaman yang lunas';
+                        break;
+                    case 'Jatuh Tempo':
+                        message = 'Tidak ada pinjaman yang jatuh tempo';
+                        break;
+                }
+                
+                pengajuanList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>${message}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Urutkan berdasarkan: Jatuh Tempo -> Belum Bayar -> Lunas (terbaru dulu)
+            const sortedKeys = Object.keys(filteredData).sort((a, b) => {
+                const dataA = filteredData[a];
+                const dataB = filteredData[b];
+                
+                const statusA = new Date() > new Date(dataA.jatuhTempo) && dataA.status === 'Belum Bayar' ? 'Jatuh Tempo' : dataA.status;
+                const statusB = new Date() > new Date(dataB.jatuhTempo) && dataB.status === 'Belum Bayar' ? 'Jatuh Tempo' : dataB.status;
+                
+                // Priority: Jatuh Tempo (1) > Belum Bayar (2) > Lunas (3)
+                const priority = {
+                    'Jatuh Tempo': 1,
+                    'Belum Bayar': 2,
+                    'Lunas': 3
+                };
+                
+                if (priority[statusA] !== priority[statusB]) {
+                    return priority[statusA] - priority[statusB];
+                }
+                
+                // Jika status sama, urutkan berdasarkan waktu dibuat (terbaru dulu)
+                return new Date(dataB.waktuDibuat) - new Date(dataA.waktuDibuat);
+            });
+
+            sortedKeys.forEach(key => {
+                const data = filteredData[key];
+                const isJatuhTempo = new Date() > new Date(data.jatuhTempo) && data.status === 'Belum Bayar';
+                const status = isJatuhTempo ? 'Jatuh Tempo' : data.status;
+
+                const statusClass = status === 'Belum Bayar' ? 'status-belum-bayar' : 
+                                  status === 'Lunas' ? 'status-lunas' : 'status-jatuh-tempo';
+
+                const statusIcon = status === 'Belum Bayar' ? 'fa-clock' : 
+                                 status === 'Lunas' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+
+                const pengajuanItem = document.createElement('div');
+                pengajuanItem.className = 'pengajuan-item';
+                pengajuanItem.innerHTML = `
+                    <div class="pengajuan-header">
+                        <div>
+                            <div class="pengajuan-name">${data.nama}</div>
+                            <div style="font-size: 0.8rem; color: var(--gray); margin-top: 4px;">
+                                Oleh: ${data.penyebar || '-'}
+                            </div>
+                        </div>
+                        <span class="status-badge ${statusClass}">
+                            <i class="fas ${statusIcon}"></i>
+                            ${status}
+                        </span>
+                    </div>
+                    <div class="pengajuan-details">
+                        <div>
+                            <div class="detail-label">Total Pinjaman</div>
+                            <div class="detail-value">${formatRupiah(data.totalDana)}</div>
+                        </div>
+                        <div>
+                            <div class="detail-label">Komisi Anda</div>
+                            <div class="detail-value" style="color: var(--success);">${formatRupiah(data.bagianPenyebar)}</div>
+                        </div>
+                        <div>
+                            <div class="detail-label">Tanggal</div>
+                            <div class="detail-value">${new Date(data.tanggalPengajuan).toLocaleDateString('id-ID')}</div>
+                        </div>
+                        <div>
+                            <div class="detail-label">Jatuh Tempo</div>
+                            <div class="detail-value">${new Date(data.jatuhTempo).toLocaleDateString('id-ID')}</div>
+                        </div>
+                    </div>
+                    <div class="pengajuan-actions">
+                        ${status !== 'Lunas' ? `
+                            <button class="action-btn btn-success" onclick="ubahStatus('${key}', 'Lunas')">
+                                <i class="fas fa-check"></i>
+                                Tandai Lunas
+                            </button>
+                        ` : ''}
+                        ${status === 'Belum Bayar' ? `
+                            <button class="action-btn btn-warning" onclick="ubahStatus('${key}', 'Belum Bayar')">
+                                <i class="fas fa-clock"></i>
+                                Belum Bayar
+                            </button>
+                        ` : ''}
+                        <button class="action-btn btn-danger" onclick="showDeleteModal('${key}')">
+                            <i class="fas fa-trash"></i>
+                            Hapus
+                        </button>
+                    </div>
+                `;
+
+                pengajuanList.appendChild(pengajuanItem);
+            });
+        }
+
+        // Update statistik
+        function updateStats(pengajuanData) {
+            let menunggu = 0;
+            let lunas = 0;
+            let jatuhTempo = 0;
+            let totalKomisiDiperoleh = 0;
+            let totalBiaya = 0;
+
+            Object.values(pengajuanData).forEach(data => {
+                if (data.status === 'Belum Bayar') {
+                    if (new Date() > new Date(data.jatuhTempo)) {
+                        jatuhTempo++;
+                    } else {
+                        menunggu++;
+                    }
+                } else if (data.status === 'Lunas') {
+                    lunas++;
+                    totalKomisiDiperoleh += data.bagianPenyebar;
+                    totalBiaya += data.biayaAdmin;
+                }
+            });
+
+            document.getElementById('statMenunggu').textContent = menunggu;
+            document.getElementById('statLunas').textContent = lunas;
+            document.getElementById('statJatuhTempo').textContent = jatuhTempo;
+            document.getElementById('statPenghasilan').textContent = formatRupiah(totalKomisiDiperoleh);
+            document.getElementById('statTotalAdmin').textContent = formatRupiah(totalBiaya);
+            document.getElementById('saldoAdmin').textContent = formatRupiah(totalKomisiDiperoleh);
+            document.getElementById('totalKomisi').textContent = formatRupiah(totalKomisiDiperoleh);
+            document.getElementById('komisiTersedia').textContent = formatRupiah(totalKomisiDiperoleh);
+            
+            // Update saldo global
+            saldoPenyebar = totalKomisiDiperoleh;
+            totalKomisi = totalKomisiDiperoleh;
+            totalBiayaAdmin = totalBiaya;
+        }
+
+        // Ubah status pengajuan
+        function ubahStatus(pengajuanId, status) {
+            const updates = {};
+            updates[`/pengajuan/${pengajuanId}/status`] = status;
+
+            database.ref().update(updates)
+                .then(() => {
+                    showNotification(`Status berhasil diubah menjadi ${status}`);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    showNotification('Terjadi kesalahan saat mengubah status!', 'error');
+                });
+        }
+
+        // Tampilkan modal hapus
+        function showDeleteModal(pengajuanId) {
+            const pengajuanData = firebase.database().ref('pengajuan/' + pengajuanId);
+            pengajuanData.once('value').then((snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    pengajuanToDeleteId = pengajuanId;
+                    document.getElementById('pengajuanToDelete').innerHTML = `
+                        <div><strong>Peminjam:</strong> ${data.nama}</div>
+                        <div><strong>Penyebar:</strong> ${data.penyebar || '-'}</div>
+                        <div><strong>Total Pinjaman:</strong> ${formatRupiah(data.totalDana)}</div>
+                        <div><strong>Komisi:</strong> ${formatRupiah(data.bagianPenyebar)}</div>
+                        <div><strong>Status:</strong> ${data.status}</div>
+                        <div><strong>Tanggal:</strong> ${new Date(data.tanggalPengajuan).toLocaleDateString('id-ID')}</div>
+                    `;
+                    document.getElementById('deleteModal').style.display = 'flex';
+                }
+            });
+        }
+
+        // Hapus pengajuan
+        function hapusPengajuan() {
+            if (!pengajuanToDeleteId) return;
+
+            const updates = {};
+            updates[`/pengajuan/${pengajuanToDeleteId}`] = null;
+
+            database.ref().update(updates)
+                .then(() => {
+                    showNotification('Catatan pinjaman berhasil dihapus!');
+                    document.getElementById('deleteModal').style.display = 'none';
+                    pengajuanToDeleteId = null;
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    showNotification('Terjadi kesalahan saat menghapus catatan!', 'error');
+                });
+        }
+
+        // Tampilkan modal penarikan
+        function showWithdrawModal() {
+            if (saldoPenyebar <= 0) {
+                showNotification('Tidak ada komisi yang dapat ditarik!', 'error');
+                return;
+            }
+
+            document.getElementById('withdrawAmount').textContent = formatRupiah(saldoPenyebar);
+            document.getElementById('confirmWithdrawAmount').textContent = formatRupiah(saldoPenyebar);
+            document.getElementById('withdrawModal').style.display = 'flex';
+        }
+
+        // Tarik komisi penyebar
+        function tarikKomisi() {
+            const withdrawData = {
+                jumlah: saldoPenyebar,
+                penyebar: currentPenyebar || 'Penyebar',
+                waktu: new Date().toISOString(),
+                status: 'Diproses'
+            };
+
+            const newWithdrawKey = database.ref().child('withdrawals').push().key;
+            const updates = {};
+            updates[`/withdrawals/${newWithdrawKey}`] = withdrawData;
+
+            database.ref().update(updates)
+                .then(() => {
+                    showNotification(`Komisi sebesar ${formatRupiah(saldoPenyebar)} berhasil diajukan! Akan diproses dalam 1x24 jam.`);
+                    document.getElementById('withdrawModal').style.display = 'none';
+                    
+                    // Reset saldo penyebar
+                    saldoPenyebar = 0;
+                    document.getElementById('saldoAdmin').textContent = formatRupiah(0);
+                    document.getElementById('komisiTersedia').textContent = formatRupiah(0);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    showNotification('Terjadi kesalahan saat menarik komisi!', 'error');
+                });
+        }
+
+        // Event Listeners untuk modal
+        document.getElementById('withdrawBtn').addEventListener('click', showWithdrawModal);
+        
+        document.getElementById('closeWithdrawModal').addEventListener('click', function() {
+            document.getElementById('withdrawModal').style.display = 'none';
+        });
+        
+        document.getElementById('cancelWithdraw').addEventListener('click', function() {
+            document.getElementById('withdrawModal').style.display = 'none';
+        });
+        
+        document.getElementById('confirmWithdraw').addEventListener('click', tarikKomisi);
+        
+        document.getElementById('closeDeleteModal').addEventListener('click', function() {
+            document.getElementById('deleteModal').style.display = 'none';
+            pengajuanToDeleteId = null;
+        });
+        
+        document.getElementById('cancelDelete').addEventListener('click', function() {
+            document.getElementById('deleteModal').style.display = 'none';
+            pengajuanToDeleteId = null;
+        });
+        
+        document.getElementById('confirmDelete').addEventListener('click', hapusPengajuan);
+
+        // Refresh data
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            showNotification('Data diperbarui!');
+        });
+
+        // Tutup modal ketika klik di luar konten modal
+        window.addEventListener('click', function(event) {
+            const withdrawModal = document.getElementById('withdrawModal');
+            const deleteModal = document.getElementById('deleteModal');
+            
+            if (event.target === withdrawModal) {
+                withdrawModal.style.display = 'none';
+            }
+            
+            if (event.target === deleteModal) {
+                deleteModal.style.display = 'none';
+                pengajuanToDeleteId = null;
+            }
+        });
+
+        // Inisialisasi
+        window.onload = function() {
+            ambilDataPengajuan();
+            document.getElementById('jatuhTempo').textContent = hitungJatuhTempo();
+        };
+    </script>
+</body>
+</html>

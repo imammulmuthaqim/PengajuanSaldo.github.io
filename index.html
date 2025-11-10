@@ -738,6 +738,59 @@
                 justify-content: center;
             }
         }
+
+        /* New styles for detailed time information */
+        .time-details {
+            background: #F8FAFC;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 3px solid var(--info);
+        }
+
+        .time-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .time-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .time-label {
+            color: var(--gray);
+        }
+
+        .time-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .total-bayar {
+            background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 10px 0;
+            border: 1px solid #F59E0B;
+        }
+
+        .total-bayar-text {
+            font-weight: 700;
+            color: #92400E;
+            font-size: 1.1rem;
+        }
+
+        .denda-info {
+            background: #FEF2F2;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border-left: 3px solid var(--danger);
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
@@ -801,6 +854,9 @@
                             <span>Bagian Sistem:</span>
                             <span id="bagianPemilik">Rp 0</span>
                         </div>
+                        <div class="total-bayar">
+                            <div class="total-bayar-text">Total yang harus dibayar: <span id="totalBayar">Rp 0</span></div>
+                        </div>
                         <div class="detail-item">
                             <span>Status:</span>
                             <span style="color: var(--warning); font-weight: 600;">Menunggu ACC</span>
@@ -820,6 +876,10 @@
                 <div class="penyebar-info">
                     <div class="penyebar-name" id="currentPenyebar">-</div>
                     <p>Komisi Anda akan terkumpul otomatis ketika pinjaman dilunasi</p>
+                    <div class="denda-info">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Perhatian:</strong> Jika melebihi jatuh tempo, biaya admin dan komisi akan dikalikan 2x
+                    </div>
                 </div>
             </div>
         </div>
@@ -1035,33 +1095,40 @@
             return 'Rp ' + angka.toLocaleString('id-ID');
         }
 
-        // Hitung jatuh tempo (3 hari dari sekarang)
-        function hitungJatuhTempo() {
-            const now = new Date();
-            now.setDate(now.getDate() + 3);
-            return now.toLocaleString('id-ID', {
+        // Format tanggal lengkap dengan jam
+        function formatTanggalLengkap(tanggal) {
+            const date = new Date(tanggal);
+            return date.toLocaleString('id-ID', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric',
                 hour: '2-digit',
-                minute: '2-digit'
+                minute: '2-digit',
+                second: '2-digit'
             });
         }
 
-        // Hitung biaya admin dan pembagian
-        function hitungBiayaAdmin(totalDana) {
+        // Hitung jatuh tempo (3 hari dari sekarang)
+        function hitungJatuhTempo() {
+            const now = new Date();
+            now.setDate(now.getDate() + 3);
+            return now.toISOString();
+        }
+
+        // Hitung biaya admin dan pembagian (termasuk denda jika jatuh tempo)
+        function hitungBiayaAdmin(totalDana, isJatuhTempo = false) {
             let biayaAdmin = 0;
             let bagianPenyebar = 0;
             let bagianPemilik = 0;
 
             if (totalDana <= 30000) {
-                biayaAdmin = 3000;
-                bagianPenyebar = 1000;
-                bagianPemilik = 2000;
+                biayaAdmin = isJatuhTempo ? 6000 : 3000;
+                bagianPenyebar = isJatuhTempo ? 2000 : 1000;
+                bagianPemilik = isJatuhTempo ? 4000 : 2000;
             } else {
-                biayaAdmin = 5000;
-                bagianPenyebar = 2000;
-                bagianPemilik = 3000;
+                biayaAdmin = isJatuhTempo ? 10000 : 5000;
+                bagianPenyebar = isJatuhTempo ? 4000 : 2000;
+                bagianPemilik = isJatuhTempo ? 6000 : 3000;
             }
 
             return {
@@ -1133,7 +1200,8 @@
             document.getElementById('biayaAdmin').textContent = formatRupiah(biaya.biayaAdmin);
             document.getElementById('bagianPenyebar').textContent = formatRupiah(biaya.bagianPenyebar);
             document.getElementById('bagianPemilik').textContent = formatRupiah(biaya.bagianPemilik);
-            document.getElementById('jatuhTempo').textContent = hitungJatuhTempo();
+            document.getElementById('totalBayar').textContent = formatRupiah(totalDana + biaya.biayaAdmin);
+            document.getElementById('jatuhTempo').textContent = formatTanggalLengkap(hitungJatuhTempo());
         });
 
         // Update current penyebar
@@ -1163,8 +1231,7 @@
 
             const biaya = hitungBiayaAdmin(totalDana);
             const tanggalPengajuan = new Date().toISOString();
-            const jatuhTempo = new Date();
-            jatuhTempo.setDate(jatuhTempo.getDate() + 3);
+            const jatuhTempo = hitungJatuhTempo();
 
             const pengajuanData = {
                 nama,
@@ -1172,11 +1239,13 @@
                 biayaAdmin: biaya.biayaAdmin,
                 bagianPenyebar: biaya.bagianPenyebar,
                 bagianPemilik: biaya.bagianPemilik,
-                status: 'Menunggu ACC', // Status awal
+                status: 'Menunggu ACC',
                 tanggalPengajuan,
-                jatuhTempo: jatuhTempo.toISOString(),
+                jatuhTempo: jatuhTempo,
                 waktuDibuat: new Date().toISOString(),
-                penyebar: penyebar
+                waktuACC: null,
+                penyebar: penyebar,
+                totalBayar: totalDana + biaya.biayaAdmin
             };
 
             // Simpan ke Firebase
@@ -1191,6 +1260,7 @@
                     document.getElementById('biayaAdmin').textContent = 'Rp 0';
                     document.getElementById('bagianPenyebar').textContent = 'Rp 0';
                     document.getElementById('bagianPemilik').textContent = 'Rp 0';
+                    document.getElementById('totalBayar').textContent = 'Rp 0';
                     document.getElementById('jatuhTempo').textContent = '-';
                     document.getElementById('currentPenyebar').textContent = '-';
                     
@@ -1203,10 +1273,101 @@
                 });
         });
 
+        // Function untuk handle data lama
+        function handleDataLama(pengajuanData) {
+            const updatedData = {};
+            let needUpdate = false;
+            
+            Object.keys(pengajuanData).forEach(key => {
+                let data = pengajuanData[key];
+                
+                // Jika data lama missing field 'totalBayar', tambahkan
+                if (!data.hasOwnProperty('totalBayar')) {
+                    data = {
+                        ...data,
+                        totalBayar: data.totalDana + data.biayaAdmin
+                    };
+                    updatedData[key] = data;
+                    needUpdate = true;
+                } else {
+                    updatedData[key] = data;
+                }
+
+                // Jika data lama missing field 'waktuACC', tambahkan
+                if (!data.hasOwnProperty('waktuACC')) {
+                    data = {
+                        ...data,
+                        waktuACC: null
+                    };
+                    updatedData[key] = data;
+                    needUpdate = true;
+                }
+            });
+            
+            // Jika ada data yang perlu diupdate, simpan ke Firebase
+            if (needUpdate) {
+                console.log('Updating old data with new fields...');
+                database.ref('pengajuan').update(updatedData)
+                    .then(() => {
+                        console.log('Data lama berhasil diupdate dengan field baru');
+                    })
+                    .catch((error) => {
+                        console.error('Error updating old data:', error);
+                    });
+            }
+            
+            return updatedData;
+        }
+
+        // Function untuk cek dan update denda otomatis
+        function cekDanUpdateDenda(pengajuanData) {
+            const updates = {};
+            let needUpdate = false;
+            const sekarang = new Date();
+
+            Object.keys(pengajuanData).forEach(key => {
+                const data = pengajuanData[key];
+                
+                // Cek jika status ACC dan sudah lewat jatuh tempo
+                if (data.status === 'ACC' && sekarang > new Date(data.jatuhTempo)) {
+                    const biayaDenda = hitungBiayaAdmin(data.totalDana, true);
+                    
+                    // Jika biaya admin belum diupdate ke nilai denda
+                    if (data.biayaAdmin !== biayaDenda.biayaAdmin) {
+                        updates[`/pengajuan/${key}/biayaAdmin`] = biayaDenda.biayaAdmin;
+                        updates[`/pengajuan/${key}/bagianPenyebar`] = biayaDenda.bagianPenyebar;
+                        updates[`/pengajuan/${key}/bagianPemilik`] = biayaDenda.bagianPemilik;
+                        updates[`/pengajuan/${key}/totalBayar`] = data.totalDana + biayaDenda.biayaAdmin;
+                        needUpdate = true;
+                        console.log('Mengupdate denda untuk:', data.nama);
+                    }
+                }
+            });
+            
+            // Jika ada data yang perlu diupdate, simpan ke Firebase
+            if (needUpdate) {
+                database.ref().update(updates)
+                    .then(() => {
+                        console.log('Denda berhasil diupdate untuk pinjaman yang jatuh tempo');
+                    })
+                    .catch((error) => {
+                        console.error('Error updating denda:', error);
+                    });
+            }
+        }
+
         // Ambil data pengajuan dari Firebase
         function ambilDataPengajuan() {
             database.ref('pengajuan').on('value', (snapshot) => {
                 allPengajuanData = snapshot.val() || {};
+                console.log('Data dari Firebase:', allPengajuanData);
+                
+                // Handle data lama - tambahkan field yang missing
+                allPengajuanData = handleDataLama(allPengajuanData);
+                
+                // CEK DAN UPDATE DENDA otomatis
+                cekDanUpdateDenda(allPengajuanData);
+                
                 tampilkanDataPengajuan(allPengajuanData);
                 updateStats(allPengajuanData);
             });
@@ -1219,10 +1380,14 @@
             const filtered = {};
             Object.keys(pengajuanData).forEach(key => {
                 const data = pengajuanData[key];
-                const isJatuhTempo = new Date() > new Date(data.jatuhTempo) && data.status === 'ACC';
-                const status = isJatuhTempo ? 'Jatuh Tempo' : data.status;
                 
-                if (filter === status) {
+                // Cek status sebenarnya (termasuk jatuh tempo)
+                let actualStatus = data.status;
+                if (data.status === 'ACC' && new Date() > new Date(data.jatuhTempo)) {
+                    actualStatus = 'Jatuh Tempo';
+                }
+                
+                if (filter === actualStatus) {
                     filtered[key] = data;
                 }
             });
@@ -1235,8 +1400,13 @@
             const pengajuanList = document.getElementById('pengajuanList');
             pengajuanList.innerHTML = '';
 
+            console.log('Data sebelum filter:', pengajuanData);
+            console.log('Filter aktif:', currentFilter);
+
             // Filter data
             const filteredData = filterData(pengajuanData, currentFilter);
+
+            console.log('Data setelah filter:', filteredData);
 
             if (Object.keys(filteredData).length === 0) {
                 let message = '';
@@ -1293,8 +1463,27 @@
 
             sortedKeys.forEach(key => {
                 const data = filteredData[key];
-                const isJatuhTempo = new Date() > new Date(data.jatuhTempo) && data.status === 'ACC';
-                const status = isJatuhTempo ? 'Jatuh Tempo' : data.status;
+                
+                // Cek status dengan benar
+                let isJatuhTempo = false;
+                let status = data.status;
+                
+                if (data.status === 'ACC' && new Date() > new Date(data.jatuhTempo)) {
+                    isJatuhTempo = true;
+                    status = 'Jatuh Tempo';
+                }
+
+                // Hitung ulang biaya jika jatuh tempo
+                let biayaAdmin = data.biayaAdmin;
+                let bagianPenyebar = data.bagianPenyebar;
+                let totalBayar = data.totalBayar;
+
+                if (isJatuhTempo) {
+                    const biayaDenda = hitungBiayaAdmin(data.totalDana, true);
+                    biayaAdmin = biayaDenda.biayaAdmin;
+                    bagianPenyebar = biayaDenda.bagianPenyebar;
+                    totalBayar = data.totalDana + biayaAdmin;
+                }
 
                 const statusClass = status === 'Menunggu ACC' ? 'status-menunggu' : 
                                   status === 'ACC' ? 'status-acc' :
@@ -1327,6 +1516,17 @@
                             Batal ACC
                         </button>
                     `;
+                } else if (status === 'Jatuh Tempo') {
+                    actionButtons = `
+                        <button class="action-btn btn-success" onclick="ubahStatus('${key}', 'Lunas')">
+                            <i class="fas fa-check-double"></i>
+                            Tandai Lunas
+                        </button>
+                        <button class="action-btn btn-warning" onclick="ubahStatus('${key}', 'ACC')">
+                            <i class="fas fa-undo"></i>
+                            Kembali ke ACC
+                        </button>
+                    `;
                 } else if (status === 'Lunas') {
                     actionButtons = `
                         <button class="action-btn btn-warning" onclick="ubahStatus('${key}', 'ACC')">
@@ -1335,6 +1535,14 @@
                         </button>
                     `;
                 }
+
+                // Info denda jika jatuh tempo
+                const dendaInfo = isJatuhTempo ? `
+                    <div class="denda-info">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Denda:</strong> Biaya admin dan komisi dikalikan 2x karena melebihi jatuh tempo
+                    </div>
+                ` : '';
 
                 pengajuanItem.innerHTML = `
                     <div class="pengajuan-header">
@@ -1349,24 +1557,45 @@
                             ${status}
                         </span>
                     </div>
+                    
+                    <div class="time-details">
+                        <div class="time-item">
+                            <span class="time-label">Dibuat:</span>
+                            <span class="time-value">${formatTanggalLengkap(data.waktuDibuat)}</span>
+                        </div>
+                        ${data.waktuACC ? `
+                        <div class="time-item">
+                            <span class="time-label">Di-ACC:</span>
+                            <span class="time-value">${formatTanggalLengkap(data.waktuACC)}</span>
+                        </div>
+                        ` : ''}
+                        <div class="time-item">
+                            <span class="time-label">Jatuh Tempo:</span>
+                            <span class="time-value">${formatTanggalLengkap(data.jatuhTempo)}</span>
+                        </div>
+                    </div>
+
                     <div class="pengajuan-details">
                         <div>
                             <div class="detail-label">Total Pinjaman</div>
                             <div class="detail-value">${formatRupiah(data.totalDana)}</div>
                         </div>
                         <div>
+                            <div class="detail-label">Biaya Admin</div>
+                            <div class="detail-value">${formatRupiah(biayaAdmin)}</div>
+                        </div>
+                        <div>
                             <div class="detail-label">Komisi Anda</div>
-                            <div class="detail-value" style="color: var(--success);">${formatRupiah(data.bagianPenyebar)}</div>
+                            <div class="detail-value" style="color: var(--success);">${formatRupiah(bagianPenyebar)}</div>
                         </div>
                         <div>
-                            <div class="detail-label">Tanggal</div>
-                            <div class="detail-value">${new Date(data.tanggalPengajuan).toLocaleDateString('id-ID')}</div>
-                        </div>
-                        <div>
-                            <div class="detail-label">Jatuh Tempo</div>
-                            <div class="detail-value">${new Date(data.jatuhTempo).toLocaleDateString('id-ID')}</div>
+                            <div class="detail-label">Total Bayar</div>
+                            <div class="detail-value" style="color: var(--primary); font-weight: 700;">${formatRupiah(totalBayar)}</div>
                         </div>
                     </div>
+
+                    ${dendaInfo}
+
                     <div class="pengajuan-actions">
                         ${actionButtons}
                         <button class="action-btn btn-danger" onclick="showDeleteModal('${key}')">
@@ -1387,23 +1616,33 @@
             let lunas = 0;
             let jatuhTempo = 0;
             let totalKomisiDiperoleh = 0;
-            let totalBiaya = 0;
+
+            console.log('Updating stats with data:', pengajuanData);
 
             Object.values(pengajuanData).forEach(data => {
+                console.log('Processing data:', data);
+                
                 if (data.status === 'Menunggu ACC') {
                     menungguACC++;
+                    console.log('Found Menunggu ACC:', data.nama);
                 } else if (data.status === 'ACC') {
                     if (new Date() > new Date(data.jatuhTempo)) {
                         jatuhTempo++;
+                        console.log('Found Jatuh Tempo:', data.nama);
+                        // Hitung komisi dengan denda untuk yang jatuh tempo
+                        totalKomisiDiperoleh += data.bagianPenyebar; // Sudah include denda 2x
                     } else {
                         acc++;
+                        console.log('Found ACC:', data.nama);
                     }
                 } else if (data.status === 'Lunas') {
                     lunas++;
+                    console.log('Found Lunas:', data.nama);
                     totalKomisiDiperoleh += data.bagianPenyebar;
-                    totalBiaya += data.biayaAdmin;
                 }
             });
+
+            console.log('Final stats:', { menungguACC, acc, lunas, jatuhTempo, totalKomisiDiperoleh });
 
             document.getElementById('statMenunggu').textContent = menungguACC;
             document.getElementById('statACC').textContent = acc;
@@ -1417,7 +1656,6 @@
             // Update saldo global
             saldoPenyebar = totalKomisiDiperoleh;
             totalKomisi = totalKomisiDiperoleh;
-            totalBiayaAdmin = totalBiaya;
         }
 
         // Ubah status pengajuan
@@ -1425,13 +1663,23 @@
             const updates = {};
             updates[`/pengajuan/${pengajuanId}/status`] = status;
 
+            // Jika di-ACC, tambahkan timestamp ACC
+            if (status === 'ACC') {
+                updates[`/pengajuan/${pengajuanId}/waktuACC`] = new Date().toISOString();
+            }
+
+            // Jika dikembalikan ke Menunggu ACC, hapus timestamp ACC
+            if (status === 'Menunggu ACC') {
+                updates[`/pengajuan/${pengajuanId}/waktuACC`] = null;
+            }
+
             database.ref().update(updates)
                 .then(() => {
                     let message = '';
                     if (status === 'ACC') {
                         message = 'Status diubah menjadi ACC (Dana sudah ditransfer)';
                     } else if (status === 'Lunas') {
-                        message = 'Status diubah menjadi Lunas (Pinjaman sudah dibayar)';
+                        message = 'Status diubah menjadi LUNAS (Pinjaman sudah dibayar + denda)';
                     } else if (status === 'Menunggu ACC') {
                         message = 'Status dikembalikan ke Menunggu ACC';
                     }
@@ -1456,7 +1704,7 @@
                         <div><strong>Total Pinjaman:</strong> ${formatRupiah(data.totalDana)}</div>
                         <div><strong>Komisi:</strong> ${formatRupiah(data.bagianPenyebar)}</div>
                         <div><strong>Status:</strong> ${data.status}</div>
-                        <div><strong>Tanggal:</strong> ${new Date(data.tanggalPengajuan).toLocaleDateString('id-ID')}</div>
+                        <div><strong>Tanggal:</strong> ${formatTanggalLengkap(data.tanggalPengajuan)}</div>
                     `;
                     document.getElementById('deleteModal').style.display = 'flex';
                 }
@@ -1525,27 +1773,27 @@
 
         // Event Listeners untuk modal
         document.getElementById('withdrawBtn').addEventListener('click', showWithdrawModal);
-        
+
         document.getElementById('closeWithdrawModal').addEventListener('click', function() {
             document.getElementById('withdrawModal').style.display = 'none';
         });
-        
+
         document.getElementById('cancelWithdraw').addEventListener('click', function() {
             document.getElementById('withdrawModal').style.display = 'none';
         });
-        
+
         document.getElementById('confirmWithdraw').addEventListener('click', tarikKomisi);
-        
+
         document.getElementById('closeDeleteModal').addEventListener('click', function() {
             document.getElementById('deleteModal').style.display = 'none';
             pengajuanToDeleteId = null;
         });
-        
+
         document.getElementById('cancelDelete').addEventListener('click', function() {
             document.getElementById('deleteModal').style.display = 'none';
             pengajuanToDeleteId = null;
         });
-        
+
         document.getElementById('confirmDelete').addEventListener('click', hapusPengajuan);
 
         // Refresh data
@@ -1571,7 +1819,7 @@
         // Inisialisasi
         window.onload = function() {
             ambilDataPengajuan();
-            document.getElementById('jatuhTempo').textContent = hitungJatuhTempo();
+            document.getElementById('jatuhTempo').textContent = formatTanggalLengkap(hitungJatuhTempo());
         };
     </script>
 </body>

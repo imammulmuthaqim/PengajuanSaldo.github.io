@@ -8,22 +8,21 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <style>
-        /* CSS TETAP SAMA SEPERTI SEBELUMNYA */
         :root {
-            --primary: #8B5CF6;
-            --primary-dark: #7C3AED;
-            --primary-light: #A78BFA;
-            --secondary: #06B6D4;
+            --primary: #DC2626;
+            --primary-dark: #B91C1C;
+            --primary-light: #EF4444;
+            --secondary: #FECACA;
             --accent: #F59E0B;
             --success: #10B981;
             --danger: #EF4444;
             --warning: #F59E0B;
             --info: #3B82F6;
             --dark: #1F2937;
-            --light: #F9FAFB;
+            --light: #FFFFFF;
             --gray: #6B7280;
-            --glass: rgba(255, 255, 255, 0.25);
-            --glass-dark: rgba(0, 0, 0, 0.1);
+            --glass: rgba(255, 255, 255, 0.95);
+            --glass-dark: rgba(220, 38, 38, 0.1);
         }
 
         * {
@@ -34,7 +33,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #DC2626 0%, #FECACA 100%);
             color: var(--dark);
             min-height: 100vh;
             padding: 0;
@@ -44,10 +43,11 @@
             background: var(--glass);
             backdrop-filter: blur(10px);
             padding: 15px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+            border-bottom: 1px solid rgba(220, 38, 38, 0.1);
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
         }
 
         .nav-container {
@@ -61,7 +61,7 @@
         .logo {
             font-size: 1.8rem;
             font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             display: flex;
@@ -72,10 +72,11 @@
         .nav-tabs {
             display: flex;
             gap: 10px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.9);
             padding: 5px;
             border-radius: 12px;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(220, 38, 38, 0.1);
         }
 
         .nav-tab {
@@ -83,34 +84,37 @@
             border: none;
             border-radius: 8px;
             background: transparent;
-            color: var(--light);
+            color: var(--dark);
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 8px;
+            white-space: nowrap;
         }
 
         .nav-tab.active {
             background: var(--primary);
             color: white;
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
         }
 
         .nav-tab:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(220, 38, 38, 0.1);
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
+            width: 100%;
         }
 
         .content-section {
             display: none;
             animation: fadeIn 0.5s ease;
+            width: 100%;
         }
 
         .content-section.active {
@@ -125,30 +129,32 @@
         .card {
             background: var(--glass);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 25px;
+            border-radius: 16px;
+            padding: 20px;
             box-shadow: 0 8px 32px var(--glass-dark);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            margin: 0 auto;
         }
 
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 12px 40px rgba(220, 38, 38, 0.15);
         }
 
         .card-title {
             font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 20px;
-            color: var(--light);
+            color: var(--primary);
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
         .card-title i {
-            color: var(--primary-light);
+            color: var(--primary);
         }
 
         .form-group {
@@ -159,13 +165,13 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: var(--light);
+            color: var(--dark);
         }
 
         input, select {
             width: 100%;
             padding: 14px 16px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(220, 38, 38, 0.2);
             border-radius: 12px;
             font-size: 1rem;
             background: rgba(255, 255, 255, 0.9);
@@ -176,7 +182,7 @@
             outline: none;
             border-color: var(--primary);
             background: white;
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
         }
 
         .btn {
@@ -198,7 +204,7 @@
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
         }
 
         .btn:active {
@@ -227,6 +233,7 @@
             border-radius: 16px;
             margin-top: 20px;
             border-left: 4px solid var(--primary);
+            width: 100%;
         }
 
         .detail-item {
@@ -244,8 +251,10 @@
         }
 
         .admin-panel {
-            max-height: 600px;
-            overflow-y: auto;
+            max-height: none;
+            overflow-y: visible;
+            min-height: 600px;
+            width: 100%;
         }
 
         .admin-header {
@@ -255,25 +264,32 @@
             margin-bottom: 20px;
             flex-wrap: wrap;
             gap: 10px;
+            width: 100%;
         }
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
             margin-bottom: 20px;
+            width: 100%;
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 10px;
             border-radius: 12px;
             text-align: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.1);
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .stat-number {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 700;
             margin-bottom: 5px;
         }
@@ -283,41 +299,45 @@
         .stat-lunas { color: var(--success); }
         .stat-jatuh-tempo { color: var(--danger); }
         .stat-penghasilan { color: var(--primary); }
-        .stat-total-admin { color: var(--secondary); }
+        .stat-total-admin { color: var(--primary); }
 
         .stat-label {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--gray);
         }
 
-        .pengajuan-list {
+        .pengajuan-list, .kontak-list {
             display: flex;
             flex-direction: column;
             gap: 15px;
+            width: 100%;
         }
 
-        .pengajuan-item {
-            background: rgba(255, 255, 255, 0.9);
+        .pengajuan-item, .kontak-item {
+            background: rgba(255, 255, 255, 0.95);
             padding: 18px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             transition: transform 0.2s ease;
+            border: 1px solid rgba(220, 38, 38, 0.1);
+            width: 100%;
         }
 
-        .pengajuan-item:hover {
+        .pengajuan-item:hover, .kontak-item:hover {
             transform: translateY(-3px);
         }
 
-        .pengajuan-header {
+        .pengajuan-header, .kontak-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 12px;
             flex-wrap: wrap;
             gap: 10px;
+            width: 100%;
         }
 
-        .pengajuan-name {
+        .pengajuan-name, .kontak-name {
             font-weight: 700;
             font-size: 1.1rem;
             color: var(--dark);
@@ -353,11 +373,12 @@
             color: #991B1B;
         }
 
-        .pengajuan-details {
+        .pengajuan-details, .kontak-details {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
             margin-bottom: 15px;
+            width: 100%;
         }
 
         .detail-label {
@@ -371,10 +392,11 @@
             color: var(--dark);
         }
 
-        .pengajuan-actions {
+        .pengajuan-actions, .kontak-actions {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            width: 100%;
         }
 
         .action-btn {
@@ -394,6 +416,7 @@
             text-align: center;
             padding: 40px 20px;
             color: var(--gray);
+            width: 100%;
         }
 
         .empty-state i {
@@ -442,11 +465,13 @@
         }
 
         .withdraw-section {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             padding: 20px;
             border-radius: 16px;
             margin-top: 20px;
             text-align: center;
+            border: 1px solid rgba(220, 38, 38, 0.1);
+            width: 100%;
         }
 
         .saldo-admin {
@@ -462,27 +487,13 @@
             gap: 15px;
             margin: 15px 0;
             text-align: left;
+            width: 100%;
         }
 
         .saldo-detail-item {
             padding: 12px;
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(220, 38, 38, 0.1);
             border-radius: 10px;
-        }
-
-        .penyebar-info {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 16px;
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .penyebar-name {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 10px;
         }
 
         .tab-filters {
@@ -490,14 +501,15 @@
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+            width: 100%;
         }
 
         .filter-btn {
             padding: 10px 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(220, 38, 38, 0.3);
             border-radius: 10px;
             background: transparent;
-            color: var(--light);
+            color: var(--dark);
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -513,7 +525,7 @@
         }
 
         .filter-btn:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(220, 38, 38, 0.1);
         }
 
         /* Modal Styles */
@@ -623,9 +635,233 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
 
+        /* Kontak Section */
+        .kontak-info {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 4px solid var(--success);
+            width: 100%;
+        }
+
+        .kontak-auto-detect {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border: 2px dashed var(--primary);
+            width: 100%;
+        }
+
+        .kontak-detail {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-tabs {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .nav-tab {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .pengajuan-header, .kontak-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .pengajuan-actions, .kontak-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .action-btn {
+                flex: 1;
+                justify-content: center;
+                font-size: 0.75rem;
+                padding: 6px 12px;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+            
+            .saldo-details, .kontak-detail {
+                grid-template-columns: 1fr;
+            }
+            
+            .tab-filters {
+                justify-content: center;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stat-card {
+                padding: 12px 8px;
+            }
+            
+            .stat-number {
+                font-size: 1.4rem;
+            }
+            
+            .pengajuan-details, .kontak-details {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .detail-section {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-tab {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            .stat-card {
+                padding: 10px 6px;
+                min-height: 70px;
+            }
+            
+            .stat-number {
+                font-size: 1.2rem;
+            }
+            
+            .pengajuan-details, .kontak-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-title {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* New styles for kontak section */
+        .kontak-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 16px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .kontak-form {
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .total-bayar {
+            background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 10px 0;
+            border: 1px solid #F59E0B;
+            width: 100%;
+        }
+
+        .total-bayar-text {
+            font-weight: 700;
+            color: #92400E;
+            font-size: 1.1rem;
+        }
+
+        .denda-info {
+            background: #FEF2F2;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border-left: 3px solid var(--danger);
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        .time-details {
+            background: #F8FAFC;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 3px solid var(--info);
+            width: 100%;
+        }
+
+        .time-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        .time-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .time-label {
+            color: var(--gray);
+        }
+
+        .time-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
         /* Withdraw Modal Specific */
         .withdraw-amount {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 800;
             color: var(--primary);
             text-align: center;
@@ -678,7 +914,7 @@
 
         /* Scrollbar styling */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
 
         ::-webkit-scrollbar-track {
@@ -694,104 +930,6 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--primary);
         }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .nav-container {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .nav-tabs {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .admin-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .pengajuan-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .pengajuan-actions {
-                width: 100%;
-                justify-content: space-between;
-            }
-            
-            .action-btn {
-                flex: 1;
-                justify-content: center;
-            }
-            
-            .modal-actions {
-                flex-direction: column;
-            }
-            
-            .saldo-details {
-                grid-template-columns: 1fr;
-            }
-            
-            .tab-filters {
-                justify-content: center;
-            }
-        }
-
-        /* New styles for detailed time information */
-        .time-details {
-            background: #F8FAFC;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
-            border-left: 3px solid var(--info);
-        }
-
-        .time-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-        }
-
-        .time-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .time-label {
-            color: var(--gray);
-        }
-
-        .time-value {
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .total-bayar {
-            background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            margin: 10px 0;
-            border: 1px solid #F59E0B;
-        }
-
-        .total-bayar-text {
-            font-weight: 700;
-            color: #92400E;
-            font-size: 1.1rem;
-        }
-
-        .denda-info {
-            background: #FEF2F2;
-            padding: 10px;
-            border-radius: 8px;
-            margin: 8px 0;
-            border-left: 3px solid var(--danger);
-            font-size: 0.85rem;
-        }
     </style>
 </head>
 <body>
@@ -806,6 +944,10 @@
                 <button class="nav-tab active" data-tab="form">
                     <i class="fas fa-plus-circle"></i>
                     Catat Pinjaman
+                </button>
+                <button class="nav-tab" data-tab="kontak">
+                    <i class="fas fa-address-book"></i>
+                    Kelola Kontak
                 </button>
                 <button class="nav-tab" data-tab="admin">
                     <i class="fas fa-chart-line"></i>
@@ -827,8 +969,11 @@
                 
                 <form id="pengajuanForm">
                     <div class="form-group">
-                        <label for="nama">Nama Peminjam</label>
-                        <input type="text" id="nama" placeholder="Masukkan nama peminjam" required>
+                        <label for="nomorTelepon">Nomor Telepon Peminjam</label>
+                        <input type="tel" id="nomorTelepon" placeholder="Contoh: 081234567890" required>
+                        <small style="color: var(--gray); margin-top: 5px; display: block;">
+                            Sistem akan otomatis mendeteksi data kontak yang sudah tersimpan
+                        </small>
                     </div>
                     
                     <div class="form-group">
@@ -836,11 +981,28 @@
                         <input type="number" id="totalDana" min="1000" placeholder="Contoh: 50000" required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="penyebar">Nama Penyebar</label>
-                        <input type="text" id="penyebar" placeholder="Nama Anda sebagai penyebar" required>
+                    <!-- Auto-detect Kontak -->
+                    <div class="kontak-auto-detect" id="kontakAutoDetect" style="display: none;">
+                        <h4 style="color: var(--success); margin-bottom: 10px;">
+                            <i class="fas fa-check-circle"></i>
+                            Kontak Ditemukan!
+                        </h4>
+                        <div class="kontak-detail">
+                            <div>
+                                <div class="detail-label">Nama</div>
+                                <div class="detail-value" id="detectedNama">-</div>
+                            </div>
+                            <div>
+                                <div class="detail-label">E-Wallet</div>
+                                <div class="detail-value" id="detectedEWallet">-</div>
+                            </div>
+                            <div>
+                                <div class="detail-label">Nama Rekening</div>
+                                <div class="detail-value" id="detectedRekening">-</div>
+                            </div>
+                        </div>
                     </div>
-                    
+
                     <div class="detail-section">
                         <h3 style="margin-bottom: 15px; color: var(--primary);">Rincian Biaya</h3>
                         <div class="detail-item">
@@ -874,12 +1036,63 @@
                     </button>
                 </form>
 
-                <div class="penyebar-info">
-                    <div class="penyebar-name" id="currentPenyebar">-</div>
-                    <p>Komisi Anda akan terkumpul otomatis ketika pinjaman dilunasi</p>
-                    <div class="denda-info">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Perhatian:</strong> Jika melebihi jatuh tempo, biaya admin dan komisi akan dikalikan 2x
+                <div class="denda-info">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Perhatian:</strong> Jika melebihi jatuh tempo, biaya admin dan komisi akan dikalikan 2x
+                </div>
+            </div>
+        </div>
+
+        <!-- Kontak Section -->
+        <div class="content-section" id="kontak-section">
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="fas fa-address-book"></i>
+                    Kelola Kontak
+                </h2>
+                
+                <div class="kontak-form">
+                    <h3 style="margin-bottom: 15px; color: var(--primary);">Tambah Kontak Baru</h3>
+                    <form id="kontakForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="kontakNama">Nama Lengkap</label>
+                                <input type="text" id="kontakNama" placeholder="Nama lengkap" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="kontakTelepon">Nomor Telepon</label>
+                                <input type="tel" id="kontakTelepon" placeholder="081234567890" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="kontakRekening">Nama Sesuai Rekening</label>
+                                <input type="text" id="kontakRekening" placeholder="Nama di rekening/EWallet" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="kontakEWallet">E-Wallet yang Dipilih</label>
+                                <select id="kontakEWallet" required>
+                                    <option value="">Pilih E-Wallet</option>
+                                    <option value="DANA">DANA</option>
+                                    <option value="OVO">OVO</option>
+                                    <option value="Gopay">Gopay</option>
+                                    <option value="ShopeePay">ShopeePay</option>
+                                    <option value="LinkAja">LinkAja</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-save"></i>
+                            Simpan Kontak
+                        </button>
+                    </form>
+                </div>
+
+                <div class="kontak-list-section">
+                    <h3 style="margin-bottom: 15px; color: var(--primary);">Daftar Kontak Tersimpan</h3>
+                    <div class="kontak-list" id="kontakList">
+                        <!-- Data kontak akan dimasukkan di sini oleh JavaScript -->
                     </div>
                 </div>
             </div>
@@ -972,7 +1185,7 @@
                     </button>
                 </div>
                 
-                <h3 style="margin: 20px 0 10px; color: var(--light);">Daftar Pinjaman</h3>
+                <h3 style="margin: 20px 0 10px; color: var(--primary);">Daftar Pinjaman</h3>
                 <div class="pengajuan-list" id="pengajuanList">
                     <!-- Data pengajuan akan dimasukkan di sini oleh JavaScript -->
                 </div>
@@ -999,10 +1212,6 @@
                 <div class="withdraw-info">
                     <p><strong>Konfirmasi Penarikan Komisi</strong></p>
                     <p>Komisi akan ditransfer ke rekening penyebar</p>
-                    <div class="withdraw-details">
-                        <span>Penerima:</span>
-                        <span id="penyebarName">-</span>
-                    </div>
                     <div class="withdraw-details">
                         <span>Biaya Transfer:</span>
                         <span>Gratis</span>
@@ -1066,6 +1275,46 @@
         </div>
     </div>
 
+    <!-- Modal Hapus Kontak -->
+    <div class="modal" id="deleteKontakModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Hapus Kontak
+                </h3>
+                <button class="close-modal" id="closeDeleteKontakModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="delete-warning">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <strong>Peringatan!</strong>
+                        <p>Kontak yang dihapus tidak dapat dikembalikan</p>
+                    </div>
+                </div>
+                <div class="pengajuan-to-delete" id="kontakToDelete">
+                    <!-- Data kontak yang akan dihapus -->
+                </div>
+                <p class="modal-text">
+                    Apakah Anda yakin ingin menghapus kontak ini? Tindakan ini akan menghapus data secara permanen dari sistem.
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" id="cancelDeleteKontak">
+                    <i class="fas fa-times"></i>
+                    Batal
+                </button>
+                <button class="modal-btn modal-btn-danger" id="confirmDeleteKontak">
+                    <i class="fas fa-trash"></i>
+                    Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Konfigurasi Firebase
         const firebaseConfig = {
@@ -1086,10 +1335,11 @@
         let saldoPenyebar = 0;
         let totalKomisi = 0;
         let totalBiayaAdmin = 0;
-        let currentPenyebar = "";
         let pengajuanToDeleteId = null;
+        let kontakToDeleteId = null;
         let currentFilter = "semua";
         let allPengajuanData = {};
+        let allKontakData = {};
 
         // Format Rupiah
         function formatRupiah(angka) {
@@ -1163,6 +1413,50 @@
         }
 
         // =============================================
+        // 🔍 FUZZY MATCHING NOMOR TELEPON
+        // =============================================
+        function normalisasiNomorTelepon(nomor) {
+            // Hapus semua karakter non-digit
+            let nomorBersih = nomor.replace(/\D/g, '');
+            
+            // Jika nomor diawali +62, ganti jadi 0
+            if (nomorBersih.startsWith('62')) {
+                nomorBersih = '0' + nomorBersih.substring(2);
+            }
+            
+            // Jika nomor diawali 62 (tanpa +), ganti jadi 0
+            if (nomorBersih.startsWith('62') && nomorBersih.length > 2) {
+                nomorBersih = '0' + nomorBersih.substring(2);
+            }
+            
+            // Hapus spasi, strip, dll yang tersisa
+            nomorBersih = nomorBersih.replace(/\s+/g, '').replace(/-/g, '');
+            
+            return nomorBersih;
+        }
+
+        // Cari kontak dengan fuzzy matching
+        function cariKontakDenganFuzzyMatching(nomorInput) {
+            const nomorInputBersih = normalisasiNomorTelepon(nomorInput);
+            
+            console.log('Mencari kontak untuk nomor:', nomorInput, '->', nomorInputBersih);
+            
+            let kontakDitemukan = null;
+            
+            Object.values(allKontakData).forEach(kontak => {
+                const nomorKontakBersih = normalisasiNomorTelepon(kontak.nomorTelepon);
+                console.log('Bandingkan dengan:', kontak.nomorTelepon, '->', nomorKontakBersih);
+                
+                if (nomorKontakBersih === nomorInputBersih) {
+                    kontakDitemukan = kontak;
+                    console.log('Kontak ditemukan:', kontak);
+                }
+            });
+            
+            return kontakDitemukan;
+        }
+
+        // =============================================
         // 🔔 TELEGRAM NOTIFICATION FUNCTION
         // =============================================
         function kirimNotifikasiTelegram(pengajuanData) {
@@ -1171,9 +1465,10 @@
             
             const message = `🔔 *PENGAJUAN DANA BARU*
 
+*Nomor Telepon:* ${pengajuanData.nomorTelepon}
 *Nama Peminjam:* ${pengajuanData.nama}
+*E-Wallet:* ${pengajuanData.ewallet}
 *Jumlah Pinjaman:* Rp ${pengajuanData.totalDana.toLocaleString('id-ID')}
-*Penyebar Dana:* ${pengajuanData.penyebar}
 *Biaya Admin:* Rp ${pengajuanData.biayaAdmin.toLocaleString('id-ID')}
 *Komisi Penyebar:* Rp ${pengajuanData.bagianPenyebar.toLocaleString('id-ID')}
 *Total Bayar:* Rp ${pengajuanData.totalBayar.toLocaleString('id-ID')}
@@ -1234,6 +1529,30 @@ _Segera buka dashboard untuk ACC transfer!_`;
             });
         });
 
+        // Auto-detect kontak berdasarkan nomor telepon dengan FUZZY MATCHING
+        document.getElementById('nomorTelepon').addEventListener('input', function() {
+            const nomorTelepon = this.value.trim();
+            const kontakAutoDetect = document.getElementById('kontakAutoDetect');
+            
+            if (nomorTelepon.length >= 10) {
+                // Cari kontak dengan fuzzy matching
+                const kontakDitemukan = cariKontakDenganFuzzyMatching(nomorTelepon);
+                
+                if (kontakDitemukan) {
+                    // Tampilkan data kontak
+                    document.getElementById('detectedNama').textContent = kontakDitemukan.nama;
+                    document.getElementById('detectedEWallet').textContent = kontakDitemukan.ewallet;
+                    document.getElementById('detectedRekening').textContent = kontakDitemukan.namaRekening;
+                    kontakAutoDetect.style.display = 'block';
+                } else {
+                    // Sembunyikan jika tidak ditemukan
+                    kontakAutoDetect.style.display = 'none';
+                }
+            } else {
+                kontakAutoDetect.style.display = 'none';
+            }
+        });
+
         // Update detail biaya saat input berubah
         document.getElementById('totalDana').addEventListener('input', function() {
             const totalDana = parseInt(this.value) || 0;
@@ -1246,22 +1565,14 @@ _Segera buka dashboard untuk ACC transfer!_`;
             document.getElementById('jatuhTempo').textContent = formatTanggalLengkap(hitungJatuhTempo());
         });
 
-        // Update current penyebar
-        document.getElementById('penyebar').addEventListener('input', function() {
-            currentPenyebar = this.value.trim();
-            document.getElementById('currentPenyebar').textContent = currentPenyebar || '-';
-            document.getElementById('penyebarName').textContent = currentPenyebar || '-';
-        });
-
         // Kirim form pengajuan
         document.getElementById('pengajuanForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            const nama = document.getElementById('nama').value.trim();
+            const nomorTelepon = document.getElementById('nomorTelepon').value.trim();
             const totalDana = parseInt(document.getElementById('totalDana').value);
-            const penyebar = document.getElementById('penyebar').value.trim();
 
-            if (!nama || !totalDana || !penyebar) {
+            if (!nomorTelepon || !totalDana) {
                 showNotification('Harap isi semua field!', 'error');
                 return;
             }
@@ -1271,22 +1582,32 @@ _Segera buka dashboard untuk ACC transfer!_`;
                 return;
             }
 
+            // Cari data kontak dengan FUZZY MATCHING
+            const kontakData = cariKontakDenganFuzzyMatching(nomorTelepon);
+
+            if (!kontakData) {
+                showNotification('Kontak dengan nomor tersebut tidak ditemukan! Silakan tambah kontak terlebih dahulu.', 'error');
+                return;
+            }
+
             const biaya = hitungBiayaAdmin(totalDana);
             const tanggalPengajuan = new Date().toISOString();
             const jatuhTempo = hitungJatuhTempo();
 
             const pengajuanData = {
-                nama,
-                totalDana,
+                nomorTelepon: nomorTelepon,
+                nama: kontakData.nama,
+                ewallet: kontakData.ewallet,
+                namaRekening: kontakData.namaRekening,
+                totalDana: totalDana,
                 biayaAdmin: biaya.biayaAdmin,
                 bagianPenyebar: biaya.bagianPenyebar,
                 bagianPemilik: biaya.bagianPemilik,
                 status: 'Menunggu ACC',
-                tanggalPengajuan,
+                tanggalPengajuan: tanggalPengajuan,
                 jatuhTempo: jatuhTempo,
                 waktuDibuat: new Date().toISOString(),
                 waktuACC: null,
-                penyebar: penyebar,
                 totalBayar: totalDana + biaya.biayaAdmin
             };
 
@@ -1308,7 +1629,7 @@ _Segera buka dashboard untuk ACC transfer!_`;
                     document.getElementById('bagianPemilik').textContent = 'Rp 0';
                     document.getElementById('totalBayar').textContent = 'Rp 0';
                     document.getElementById('jatuhTempo').textContent = '-';
-                    document.getElementById('currentPenyebar').textContent = '-';
+                    document.getElementById('kontakAutoDetect').style.display = 'none';
                     
                     // Switch to admin tab setelah berhasil simpan
                     document.querySelector('.nav-tab[data-tab="admin"]').click();
@@ -1316,6 +1637,61 @@ _Segera buka dashboard untuk ACC transfer!_`;
                 .catch((error) => {
                     console.error('Error:', error);
                     showNotification('Terjadi kesalahan saat menyimpan catatan!', 'error');
+                });
+        });
+
+        // Simpan kontak baru
+        document.getElementById('kontakForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const nama = document.getElementById('kontakNama').value.trim();
+            const nomorTelepon = document.getElementById('kontakTelepon').value.trim();
+            const namaRekening = document.getElementById('kontakRekening').value.trim();
+            const ewallet = document.getElementById('kontakEWallet').value;
+
+            if (!nama || !nomorTelepon || !namaRekening || !ewallet) {
+                showNotification('Harap isi semua field!', 'error');
+                return;
+            }
+
+            // Normalisasi nomor telepon untuk cek duplikat
+            const nomorTeleponBersih = normalisasiNomorTelepon(nomorTelepon);
+
+            // Cek apakah nomor telepon sudah ada (dengan fuzzy matching)
+            let kontakExist = false;
+            Object.values(allKontakData).forEach(kontak => {
+                const nomorKontakBersih = normalisasiNomorTelepon(kontak.nomorTelepon);
+                if (nomorKontakBersih === nomorTeleponBersih) {
+                    kontakExist = true;
+                }
+            });
+
+            if (kontakExist) {
+                showNotification('Kontak dengan nomor telepon tersebut sudah ada!', 'error');
+                return;
+            }
+
+            const kontakData = {
+                nama: nama,
+                nomorTelepon: nomorTelepon,
+                namaRekening: namaRekening,
+                ewallet: ewallet,
+                waktuDibuat: new Date().toISOString()
+            };
+
+            // Simpan ke Firebase
+            const newKontakKey = database.ref().child('kontak').push().key;
+            const updates = {};
+            updates[`/kontak/${newKontakKey}`] = kontakData;
+
+            database.ref().update(updates)
+                .then(() => {
+                    showNotification('Kontak berhasil disimpan!', 'success');
+                    document.getElementById('kontakForm').reset();
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    showNotification('Terjadi kesalahan saat menyimpan kontak!', 'error');
                 });
         });
 
@@ -1406,7 +1782,7 @@ _Segera buka dashboard untuk ACC transfer!_`;
         function ambilDataPengajuan() {
             database.ref('pengajuan').on('value', (snapshot) => {
                 allPengajuanData = snapshot.val() || {};
-                console.log('Data dari Firebase:', allPengajuanData);
+                console.log('Data pengajuan dari Firebase:', allPengajuanData);
                 
                 // Handle data lama - tambahkan field yang missing
                 allPengajuanData = handleDataLama(allPengajuanData);
@@ -1416,6 +1792,15 @@ _Segera buka dashboard untuk ACC transfer!_`;
                 
                 tampilkanDataPengajuan(allPengajuanData);
                 updateStats(allPengajuanData);
+            });
+        }
+
+        // Ambil data kontak dari Firebase
+        function ambilDataKontak() {
+            database.ref('kontak').on('value', (snapshot) => {
+                allKontakData = snapshot.val() || {};
+                console.log('Data kontak dari Firebase:', allKontakData);
+                tampilkanDataKontak(allKontakData);
             });
         }
 
@@ -1595,7 +1980,7 @@ _Segera buka dashboard untuk ACC transfer!_`;
                         <div>
                             <div class="pengajuan-name">${data.nama}</div>
                             <div style="font-size: 0.8rem; color: var(--gray); margin-top: 4px;">
-                                Oleh: ${data.penyebar || '-'}
+                                ${data.nomorTelepon} • ${data.ewallet}
                             </div>
                         </div>
                         <span class="status-badge ${statusClass}">
@@ -1652,6 +2037,72 @@ _Segera buka dashboard untuk ACC transfer!_`;
                 `;
 
                 pengajuanList.appendChild(pengajuanItem);
+            });
+        }
+
+        // Tampilkan data kontak
+        function tampilkanDataKontak(kontakData) {
+            const kontakList = document.getElementById('kontakList');
+            kontakList.innerHTML = '';
+
+            if (Object.keys(kontakData).length === 0) {
+                kontakList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-address-book"></i>
+                        <p>Belum ada kontak yang tersimpan</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Urutkan berdasarkan waktu dibuat (terbaru dulu)
+            const sortedKeys = Object.keys(kontakData).sort((a, b) => {
+                return new Date(kontakData[b].waktuDibuat) - new Date(kontakData[a].waktuDibuat);
+            });
+
+            sortedKeys.forEach(key => {
+                const data = kontakData[key];
+                
+                const kontakItem = document.createElement('div');
+                kontakItem.className = 'kontak-item';
+                
+                kontakItem.innerHTML = `
+                    <div class="kontak-header">
+                        <div class="kontak-name">${data.nama}</div>
+                        <span class="status-badge status-lunas">
+                            <i class="fas fa-check-circle"></i>
+                            Tersimpan
+                        </span>
+                    </div>
+                    
+                    <div class="kontak-details">
+                        <div>
+                            <div class="detail-label">Nomor Telepon</div>
+                            <div class="detail-value">${data.nomorTelepon}</div>
+                        </div>
+                        <div>
+                            <div class="detail-label">Nama Rekening</div>
+                            <div class="detail-value">${data.namaRekening}</div>
+                        </div>
+                        <div>
+                            <div class="detail-label">E-Wallet</div>
+                            <div class="detail-value">${data.ewallet}</div>
+                        </div>
+                        <div>
+                            <div class="detail-label">Ditambahkan</div>
+                            <div class="detail-value">${formatTanggalLengkap(data.waktuDibuat)}</div>
+                        </div>
+                    </div>
+
+                    <div class="kontak-actions">
+                        <button class="action-btn btn-danger" onclick="showDeleteKontakModal('${key}')">
+                            <i class="fas fa-trash"></i>
+                            Hapus Kontak
+                        </button>
+                    </div>
+                `;
+
+                kontakList.appendChild(kontakItem);
             });
         }
 
@@ -1737,7 +2188,7 @@ _Segera buka dashboard untuk ACC transfer!_`;
                 });
         }
 
-        // Tampilkan modal hapus
+        // Tampilkan modal hapus pengajuan
         function showDeleteModal(pengajuanId) {
             const pengajuanData = firebase.database().ref('pengajuan/' + pengajuanId);
             pengajuanData.once('value').then((snapshot) => {
@@ -1746,13 +2197,33 @@ _Segera buka dashboard untuk ACC transfer!_`;
                     pengajuanToDeleteId = pengajuanId;
                     document.getElementById('pengajuanToDelete').innerHTML = `
                         <div><strong>Peminjam:</strong> ${data.nama}</div>
-                        <div><strong>Penyebar:</strong> ${data.penyebar || '-'}</div>
+                        <div><strong>Nomor Telepon:</strong> ${data.nomorTelepon}</div>
+                        <div><strong>E-Wallet:</strong> ${data.ewallet}</div>
                         <div><strong>Total Pinjaman:</strong> ${formatRupiah(data.totalDana)}</div>
                         <div><strong>Komisi:</strong> ${formatRupiah(data.bagianPenyebar)}</div>
                         <div><strong>Status:</strong> ${data.status}</div>
                         <div><strong>Tanggal:</strong> ${formatTanggalLengkap(data.tanggalPengajuan)}</div>
                     `;
                     document.getElementById('deleteModal').style.display = 'flex';
+                }
+            });
+        }
+
+        // Tampilkan modal hapus kontak
+        function showDeleteKontakModal(kontakId) {
+            const kontakData = firebase.database().ref('kontak/' + kontakId);
+            kontakData.once('value').then((snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    kontakToDeleteId = kontakId;
+                    document.getElementById('kontakToDelete').innerHTML = `
+                        <div><strong>Nama:</strong> ${data.nama}</div>
+                        <div><strong>Nomor Telepon:</strong> ${data.nomorTelepon}</div>
+                        <div><strong>Nama Rekening:</strong> ${data.namaRekening}</div>
+                        <div><strong>E-Wallet:</strong> ${data.ewallet}</div>
+                        <div><strong>Ditambahkan:</strong> ${formatTanggalLengkap(data.waktuDibuat)}</div>
+                    `;
+                    document.getElementById('deleteKontakModal').style.display = 'flex';
                 }
             });
         }
@@ -1776,6 +2247,25 @@ _Segera buka dashboard untuk ACC transfer!_`;
                 });
         }
 
+        // Hapus kontak
+        function hapusKontak() {
+            if (!kontakToDeleteId) return;
+
+            const updates = {};
+            updates[`/kontak/${kontakToDeleteId}`] = null;
+
+            database.ref().update(updates)
+                .then(() => {
+                    showNotification('Kontak berhasil dihapus!');
+                    document.getElementById('deleteKontakModal').style.display = 'none';
+                    kontakToDeleteId = null;
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    showNotification('Terjadi kesalahan saat menghapus kontak!', 'error');
+                });
+        }
+
         // Tampilkan modal penarikan
         function showWithdrawModal() {
             if (saldoPenyebar <= 0) {
@@ -1792,7 +2282,6 @@ _Segera buka dashboard untuk ACC transfer!_`;
         function tarikKomisi() {
             const withdrawData = {
                 jumlah: saldoPenyebar,
-                penyebar: currentPenyebar || 'Penyebar',
                 waktu: new Date().toISOString(),
                 status: 'Diproses'
             };
@@ -1842,6 +2331,18 @@ _Segera buka dashboard untuk ACC transfer!_`;
 
         document.getElementById('confirmDelete').addEventListener('click', hapusPengajuan);
 
+        document.getElementById('closeDeleteKontakModal').addEventListener('click', function() {
+            document.getElementById('deleteKontakModal').style.display = 'none';
+            kontakToDeleteId = null;
+        });
+
+        document.getElementById('cancelDeleteKontak').addEventListener('click', function() {
+            document.getElementById('deleteKontakModal').style.display = 'none';
+            kontakToDeleteId = null;
+        });
+
+        document.getElementById('confirmDeleteKontak').addEventListener('click', hapusKontak);
+
         // Refresh data
         document.getElementById('refreshBtn').addEventListener('click', function() {
             showNotification('Data diperbarui!');
@@ -1851,6 +2352,7 @@ _Segera buka dashboard untuk ACC transfer!_`;
         window.addEventListener('click', function(event) {
             const withdrawModal = document.getElementById('withdrawModal');
             const deleteModal = document.getElementById('deleteModal');
+            const deleteKontakModal = document.getElementById('deleteKontakModal');
             
             if (event.target === withdrawModal) {
                 withdrawModal.style.display = 'none';
@@ -1860,11 +2362,17 @@ _Segera buka dashboard untuk ACC transfer!_`;
                 deleteModal.style.display = 'none';
                 pengajuanToDeleteId = null;
             }
+            
+            if (event.target === deleteKontakModal) {
+                deleteKontakModal.style.display = 'none';
+                kontakToDeleteId = null;
+            }
         });
 
         // Inisialisasi
         window.onload = function() {
             ambilDataPengajuan();
+            ambilDataKontak();
             document.getElementById('jatuhTempo').textContent = formatTanggalLengkap(hitungJatuhTempo());
         };
     </script>

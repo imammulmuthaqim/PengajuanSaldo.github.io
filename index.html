@@ -8,6 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <style>
+        /* CSS TETAP SAMA SEPERTI SEBELUMNYA */
         :root {
             --primary: #8B5CF6;
             --primary-dark: #7C3AED;
@@ -1161,6 +1162,47 @@
             }, 3000);
         }
 
+        // =============================================
+        // 🔔 TELEGRAM NOTIFICATION FUNCTION
+        // =============================================
+        function kirimNotifikasiTelegram(pengajuanData) {
+            const botToken = "8144046924:AAFfNsICf5o4cN1gbjKWpq7Qlcu-96N-q7E";
+            const chatId = "7442023531";
+            
+            const message = `🔔 *PENGAJUAN DANA BARU*
+
+*Nama Peminjam:* ${pengajuanData.nama}
+*Jumlah Pinjaman:* Rp ${pengajuanData.totalDana.toLocaleString('id-ID')}
+*Penyebar Dana:* ${pengajuanData.penyebar}
+*Biaya Admin:* Rp ${pengajuanData.biayaAdmin.toLocaleString('id-ID')}
+*Komisi Penyebar:* Rp ${pengajuanData.bagianPenyebar.toLocaleString('id-ID')}
+*Total Bayar:* Rp ${pengajuanData.totalBayar.toLocaleString('id-ID')}
+*Status:* ${pengajuanData.status}
+*Waktu:* ${new Date().toLocaleString('id-ID')}
+
+_Segera buka dashboard untuk ACC transfer!_`;
+
+            // Kirim via Telegram API
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message,
+                    parse_mode: 'Markdown'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Notifikasi Telegram terkirim!', data);
+            })
+            .catch(error => {
+                console.error('Error kirim Telegram:', error);
+            });
+        }
+
         // Navigation
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.addEventListener('click', function() {
@@ -1256,6 +1298,10 @@
             database.ref().update(updates)
                 .then(() => {
                     showNotification('Catatan pinjaman berhasil disimpan! Status: Menunggu ACC', 'info');
+                    
+                    // 🔔 KIRIM NOTIFIKASI TELEGRAM
+                    kirimNotifikasiTelegram(pengajuanData);
+                    
                     document.getElementById('pengajuanForm').reset();
                     document.getElementById('biayaAdmin').textContent = 'Rp 0';
                     document.getElementById('bagianPenyebar').textContent = 'Rp 0';
